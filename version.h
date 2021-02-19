@@ -6,6 +6,11 @@
 #include <math.h>
 #include <iomanip>
 
+enum PCB_STATUS {
+  NOT_SET = -2,
+  ROOT = -1
+};
+
 class version {
 protected:
   clock_t t;

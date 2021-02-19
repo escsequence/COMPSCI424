@@ -4,7 +4,7 @@
 #include <list>
 
 struct PCB {
-    int parent = -1;
+    int parent = PCB_STATUS::NOT_SET;
     std::list<int> children;
 };
 
@@ -22,7 +22,7 @@ public:
 
   }
 
-  void print();
+  void print(), create_root();
   int get_next();
   bool exists(int p);
 };

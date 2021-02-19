@@ -3,28 +3,28 @@
 #include "version.h"
 #include <list>
 
-struct PCB {
-    int parent = -1;
-    int first_child;
-    int younger_sibling;
-    int older_sibling;
+struct PCB2 {
+    int parent = PCB_STATUS::NOT_SET;
+    int first_child = PCB_STATUS::NOT_SET;
+    int younger_sibling = PCB_STATUS::NOT_SET;
+    int older_sibling = PCB_STATUS::NOT_SET;
 };
 
-class version1 : public version {
+class version2 : public version {
 private:
-  PCB *pcb;
+  PCB2 *pcb;
   int max;
 public:
   void init(int n), create(int p), destroy(int p);
 
-  version1() {
+  version2() {
 
   }
-  ~version1() {
+  ~version2() {
 
   }
 
-  void print();
+  void print(), create_root();
   int get_next();
   bool exists(int p);
 };
