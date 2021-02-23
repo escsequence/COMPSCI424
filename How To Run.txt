@@ -1,0 +1,17 @@
+    ____  __________     _______________________      ____ 
+   / __ \/ ____/ __ )   /_  __/ ____/ ___/_  __/___  / __ \
+  / /_/ / /   / __  |    / / / __/  \__ \ / / / __ \/ /_/ /
+ / ____/ /___/ /_/ /    / / / /___ ___/ // / / /_/ / _, _/ 
+/_/    \____/_____/    /_/ /_____//____//_/  \____/_/ |_|  
+                                                           
+Assignment1 | COMPSCI424 | James Johnston
+I used "build_and_run.bat" for testing on Windows with g++ compiler,  I also created a make file for convience.
+
+RUN:
+g++ assignment1.cpp version1.cpp version2.cpp -o Assignment1
+
+
+If you are on Windows it should output: Assignment1.exe
+and you can run that but double clicking or executing ./Assignment1.exe in cmd or powershell
+
+and for linux just run "./Assignment1" after you modify the permissions in linux of course.

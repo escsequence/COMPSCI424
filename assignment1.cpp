@@ -5,7 +5,6 @@
  * assignment1.cpp
  * This is the main method cpp file to run.
 ********************************************************/
-
 #include <iostream>
 #include <stdlib.h>
 #include <time.h>
@@ -205,8 +204,17 @@ void run() {
 
 int main() {
 
+  std::cout << "##########################################" << std::endl;
+  std::cout << "####            Assignment 1          ####" << std::endl;
+  std::cout << "####           PCB COMPARERER         ####" << std::endl;
+  std::cout << "####    COMPSCI424 - James Johnston   ####" << std::endl;
+  std::cout << "##########################################" << std::endl;
+  std::cout << std::endl;
+
   // Initalize our array
   init(PROCESS_ARRAY_SIZE);
+  std::cout << std::endl;
+
 
   // Run the tests
   run();

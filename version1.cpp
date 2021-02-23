@@ -3,7 +3,7 @@
  * Created by James Johnston
  * Computer Science 424 (Operating Systems)
  * version1.cpp
- * This is the first design of the PCBs, uses a linked list.
+ * Version 1 - This is the first design of the PCBs, uses a linked list.
 ********************************************************/
 #include "version1.h"
 

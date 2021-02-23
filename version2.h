@@ -1,8 +1,16 @@
+/*******************************************************
+ * Assignment 1
+ * Created by James Johnston
+ * Computer Science 424 (Operating Systems)
+ * version2.h
+ * Version 2
+********************************************************/
 #ifndef VERSION2_H
 #define VERSION2_H
 #include "version.h"
 #include <list>
 
+// PCB structure for Version 2
 struct PCB2 {
     int parent = PCB_STATUS::NOT_SET;
     int first_child = PCB_STATUS::NOT_SET;

@@ -3,7 +3,7 @@
  * Created by James Johnston
  * Computer Science 424 (Operating Systems)
  * version2.cpp
- * This is the second version of the PCB, this should be faster and it does not use linked lists
+ * Version 2 - This is the second version of the PCB, this should be faster and it does not use linked lists
 ********************************************************/
 #include "version2.h"
 
@@ -140,6 +140,10 @@ void version2::destroy(int p) {
       }
     }
     pcb[p] = PCB2();
+
+    if (p == 0) {
+      pcb[p].parent = PCB_STATUS::ROOT;
+    }
   }
 }
 
