@@ -25,12 +25,8 @@ private:
 public:
   void init(int n), create(int p), destroy(int p);
 
-  version2() {
-
-  }
-  ~version2() {
-
-  }
+  version2() {}
+  ~version2() {}
 
   void print(), create_root();
   int get_next();
