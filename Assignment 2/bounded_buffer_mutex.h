@@ -7,15 +7,19 @@
 #include <iostream>
 #include <time.h>
 #include <string>
+#include <mutex>
+#include <math.h>
 
 class bounded_buffer {
 private:
   bool debug_print;
   int size, max_burst, max_thread_sleep;
   int *buffer;
-  void init(), main(), producer(), consumer();
+  void init(), main(), producer(int time_limit), consumer(int time_limit);
   void print(std::string data, std::string thread, bool debug = false);
-
+  clock_t time_elapsed;
+  int stop_running_time;
+  double current_time_elapsed();
 public:
   void run();
 
