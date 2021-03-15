@@ -1,3 +1,10 @@
+/*******************************************************
+ * Assignment 2
+ * Created by James Johnston
+ * Computer Science 424 (Operating Systems)
+ * bounded_buffer_mutex.cpp
+ * Using a mutex, P, and V implementations for this revised version
+********************************************************/
 #include "bounded_buffer_mutex.h"
 std::mutex mtx; // Mutex to control the consumer and producer.
 
@@ -23,6 +30,9 @@ double bounded_buffer::current_time_elapsed() {
 }
 
 void bounded_buffer::run() {
+  // Initalize
+  init();
+
   // Get the main thread up and running
   std::thread main_thread(&bounded_buffer::main, this);
   main_thread.join();
@@ -32,7 +42,7 @@ void bounded_buffer::run() {
 // Main thread
 void bounded_buffer::main() {
 
-  stop_running_time = 20; // in seconds
+  stop_running_time = 90; // in seconds
   // Create a clock to keep track of time
   //time_elapsed = clock();
   print("Setting termination time of threads = " + std::to_string(stop_running_time) + " seconds.", "Main");
@@ -47,6 +57,31 @@ void bounded_buffer::main() {
   consumer_thread.join();
 
   print("Threads have been terminated.", "Main");
+}
+
+int bounded_buffer::P(int s, std::string t) {
+  if (s > 0) {
+    return s-1;
+  } else {
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    mtx.unlock();
+    while(s <= 0) {
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      int seconds = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - begin).count();
+
+      if (seconds > max_thread_sleep) {
+        mtx.lock();
+        return s;
+      }
+    }
+    mtx.lock();
+    return s-1;
+  }
+}
+
+int bounded_buffer::V(int s) {
+  // Increment S by 1
+  return s+1;
 }
 
 void bounded_buffer::producer(int time_limit) {
@@ -76,11 +111,13 @@ void bounded_buffer::producer(int time_limit) {
     print("Burst (k1) set to " + std::to_string(k1), "Producer");
 
     //  for i from 0 to k1
-    for (int i = 0; i < k1; ++i) {
 
+    for (int i = 0; i < k1; ++i) {
       // add 1 to buffer[(next_in + i) mod n]
+      empty = P(empty, "Producer");
       buffer[(next_in + i) % size]++;
       print("Buffer[" + std::to_string((next_in + i) % size) + "] = " + std::to_string(buffer[(next_in + i) % size]), "Producer", true);
+      full = V(full);
     }
 
     //  next_in = (next_in + k1) mod n
@@ -133,9 +170,10 @@ void bounded_buffer::consumer(int time_limit) {
         mtx.unlock();
         return;
       } else {
+        full = P(full, "Consumer");
         buffer[(next_out + i) % size] = 0;
+        empty = V(empty);
       }
-
     }
     //    next_out = (next_out + k2) mod n
     next_out = (next_out + k2);

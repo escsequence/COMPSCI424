@@ -1,0 +1,1 @@
+g++ assignment2.cpp bounded_buffer_mutex.cpp -o A2.exe

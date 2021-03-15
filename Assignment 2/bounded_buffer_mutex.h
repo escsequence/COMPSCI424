@@ -14,6 +14,13 @@ class bounded_buffer {
 private:
   bool debug_print;
   int size, max_burst, max_thread_sleep;
+
+  // Implementation of P and V functions
+  int full, empty;
+  int P(int s, std::string t);
+  int V(int s);
+
+
   int *buffer;
   void init(), main(), producer(int time_limit), consumer(int time_limit);
   void print(std::string data, std::string thread, bool debug = false);
@@ -32,6 +39,9 @@ public:
 
     // Initalize the buffer
     buffer = new int[size];
+
+    full = 0;
+    empty = size;
   }
 
   ~bounded_buffer() {
