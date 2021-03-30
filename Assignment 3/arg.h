@@ -1,4 +1,4 @@
-#ifndef ARG_Hst
+#ifndef ARG_H
 #define ARG_H
 #include "mode.h"
 class arg {
@@ -10,12 +10,33 @@ class arg {
     char **v;
 
     // Bankers algorthim mode from argument 2
-    BA_MODE m;
+    ba_mode m;
 
     // File name from argument 3
     std::string f;
 
   public:
+    // Default constructor, takes in parameters from the main method
+    arg(int argc, char** argv) {
+      // Assign the c (count) and the v (values)
+      c = argc;
+      v = argv;
+
+      // If the count is greater than 1 (meaning there is a single argument)
+      if (c > 1) {
+        // try and find a mode based on the string
+        m = str_to_mode(v[1]);
+      }
+
+      // If the count is greater than 2 (meaning there are two arguments)
+      if (c > 2) {
+        // Just assign it to the "f" variable since we are just storing a string.
+        f = v[2];
+      }
+    }
+
+    arg() {}
+
       /**
        * Returns the mode (string-ified version) for this argument object.
        *
@@ -23,9 +44,9 @@ class arg {
        */
       std::string get_mode_str() {
         switch(m) {
-          case AUTO:
+          case BA_AUTO:
             return "auto";
-          case MANUAL:
+          case BA_MANUAL:
             return "manual";
           default:
             return "invalid";
@@ -37,7 +58,7 @@ class arg {
        *
        * @return mode of the argument object, this should be the second parameter.
        */
-      BA_MODE get_mode() {
+      ba_mode get_mode() {
         return m;
       }
 
@@ -56,26 +77,7 @@ class arg {
        * @returns true if the mode is not invalid and file is not empty.
        */
       bool verify_mode_and_file() {
-        return (f != "" && (m == AUTO || m == MANUAL));
-      }
-
-      // Default constructor, takes in parameters from the main method
-      arg(int argc, char** argv) {
-        // Assign the c (count) and the v (values)
-        c = argc;
-        v = argv;
-
-        // If the count is greater than 1 (meaning there is a single argument)
-        if (c > 1) {
-          // try and find a mode based on the string
-          m = str_to_mode(v[1]);
-        }
-
-        // If the count is greater than 2 (meaning there are two arguments)
-        if (c > 2) {
-          // Just assign it to the "f" variable since we are just storing a string.
-          f = v[2];
-        }
+        return (f != "" && (m == BA_AUTO || m == BA_MANUAL));
       }
 };
 #endif

@@ -9,10 +9,10 @@
  * MANUAL  - Used to run tests on the algorthim.
  * AUTO    - Automatically runs the algorthim in a standard way.
  */
-enum BA_MODE {
-  INVALID = -1,
-  MANUAL,
-  AUTO
+enum ba_mode {
+  BA_INVALID = -1,
+  BA_MANUAL,
+  BA_AUTO
 };
 
 /**
@@ -21,9 +21,9 @@ enum BA_MODE {
  * @param c Value that is parsed to find a BA_MODE.
  * @return BA_MODE value of the argument.
  */
-static BA_MODE str_to_mode(std::string c) {
-  BA_MODE tmode = (c == "manual") ? BA_MODE::MANUAL : BA_MODE::INVALID;
-  return (c == "auto") ? BA_MODE::AUTO : tmode;
+static ba_mode str_to_mode(std::string c) {
+  ba_mode tmode = (c == "manual") ? BA_MANUAL : BA_INVALID;
+  return (c == "auto") ? BA_AUTO : tmode;
 }
 
 #endif
