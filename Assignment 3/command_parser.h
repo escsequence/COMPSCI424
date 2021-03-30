@@ -62,7 +62,7 @@ namespace ba_command {
               c.action = CA_INVALID;
             }
           } else {
-            std::cout << "Error! The input data is corrupted (possibly did not contain numeric values)." << std::endl;
+            std::cout << "Error! The input data is not completed (possibly missing some parameters?)." << std::endl;
             std::cout << "Try this format: request 3 of 1 for 0" << std::endl;
           }
         }
