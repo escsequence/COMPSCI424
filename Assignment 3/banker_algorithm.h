@@ -4,24 +4,38 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <climits>
 #include "arg.h"
 #include "command_parser.h"
 
 class banker_algorithm {
 private:
+  // This value is the default value our array items are set to
+  const int DEFAULT_UNDEFINED_VALUE = INT_MIN;
+
+  // Arrays
   int* available;
   int** max;
   int** allocation;
   int** request;
+
+  // n and m are stored for use to define the array sizes
   int n, m;
+
+  // Argument package handler that holds the argument values
   arg arg_handle;
+
+  // Configuration array of configuration entries from the file
   std::vector<ba_config::config> configuration;
 
   void init(), init_load_config(), init_parse_config(), init_setup_array();
+  void reload_config();
 
   int run_auto(), run_manual();
 
   void print_status();
+
+  bool valid(int &val);
 
   // Manual
   bool manual_process_inputs;

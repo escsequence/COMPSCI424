@@ -48,7 +48,8 @@ namespace ba_config {
     CF_INVALID,
     CF_AVAILABLE,
     CF_MAX,
-    CF_ALLOCATION
+    CF_ALLOCATION,
+    CF_REQUEST
   };
   struct config {
     int* value_array;
@@ -103,7 +104,8 @@ namespace ba_command {
             std::cout << "Try this format: request 3 of 1 for 0" << std::endl;
           }
         } else {
-          if (m == "status") {
+          // Extra commands
+          if (m == "status" || m == "STATUS") {
             c.action = CA_STATUS;
           }
         }

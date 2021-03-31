@@ -17,7 +17,8 @@ void banker_algorithm::init() {
 void banker_algorithm::init_parse_config() {
   // Loop through all the config stuff
   int mp = 0;
-  int ma = 0;
+  int ap = 0;
+  int rp = 0;
   for(ba_config::config c: configuration) {
     switch(c.flag) {
       case ba_config::CF_AVAILABLE:
@@ -33,9 +34,15 @@ void banker_algorithm::init_parse_config() {
         break;
       case ba_config::CF_ALLOCATION:
         for (int i = 0; i < m; ++i) {
-          this->allocation[ma][i] = c.value_array[i];
+          this->allocation[ap][i] = c.value_array[i];
         }
-        ma++;
+        ap++;
+        break;
+      case ba_config::CF_REQUEST:
+        for (int i = 0; i < m; ++i) {
+          this->request[rp][i] = c.value_array[i];
+        }
+        rp++;
         break;
     }
   }
@@ -54,6 +61,21 @@ void banker_algorithm::init_setup_array() {
     allocation[i] = new int[m];
     request[i] = new int[m];
   }
+
+  // Santize our array to be all DEFAULT_UNDEFINED_VALUE
+  for (int in = 0; in < n; ++in) {
+    for (int im = 0; im < m; ++im) {
+      max[in][im] = DEFAULT_UNDEFINED_VALUE;
+      allocation[in][im] = DEFAULT_UNDEFINED_VALUE;
+      request[in][im] = DEFAULT_UNDEFINED_VALUE;
+    }
+  }
+
+  for (int im = 0; im < m; ++im) {
+    available[im] = DEFAULT_UNDEFINED_VALUE;
+  }
+
+
 }
 
 void banker_algorithm::init_load_config() {
@@ -110,6 +132,8 @@ void banker_algorithm::init_load_config() {
           } else if (parsed_elements[0] == "Allocation") {
             current_flag = ba_config::CF_ALLOCATION;
             //std::cout << "FLAG SET TO ALLOCATION" << std::endl;
+          } else if (parsed_elements[0] == "Requests" || parsed_elements[0] == "Request") {
+            current_flag = ba_config::CF_REQUEST;
           }
           // Probably a keyword to define what we are looking for
         }
@@ -120,9 +144,13 @@ void banker_algorithm::init_load_config() {
   }
 }
 
+bool banker_algorithm::valid(int &val) {
+  return (val == DEFAULT_UNDEFINED_VALUE);
+}
+
 void banker_algorithm::print_status() {
   // Available
-  std::cout << "Available = [";
+  std::cout << "Available = " << std::endl << "[";
   for (int im = 0; im < m; ++im) {
     if (im != m-1)
       std::cout << available[im] << ", ";
@@ -137,10 +165,11 @@ void banker_algorithm::print_status() {
   for (int in = 0; in < n; ++in) {
       std::cout << "[";
       for (int im = 0; im < m; ++im) {
+        std::string val = valid(max[in][im]) ? "-" : std::to_string(max[in][im]);
         if (im != m-1)
-          std::cout << max[in][im] << ", ";
+          std::cout << val << ", ";
         else
-        std::cout << max[in][im];
+          std::cout << val;
       }
       std::cout << "]" << std::endl;
   }
@@ -150,10 +179,11 @@ void banker_algorithm::print_status() {
   for (int in = 0; in < n; ++in) {
       std::cout << "[";
       for (int im = 0; im < m; ++im) {
+        std::string val =  valid(allocation[in][im]) ? "-" : std::to_string(allocation[in][im]);
         if (im != m-1)
-          std::cout << allocation[in][im] << ", ";
+          std::cout << val << ", ";
         else
-        std::cout << allocation[in][im];
+        std::cout << val;
       }
       std::cout << "]" << std::endl;
   }
@@ -163,16 +193,16 @@ void banker_algorithm::print_status() {
   for (int in = 0; in < n; ++in) {
       std::cout << "[";
       for (int im = 0; im < m; ++im) {
+        std::string val = valid(request[in][im]) ? "-" : std::to_string(request[in][im]);
         if (im != m-1)
-          std::cout << request[in][im] << ", ";
+          std::cout << val << ", ";
         else
-        std::cout << request[in][im];
+        std::cout << val;
       }
       std::cout << "]" << std::endl;
   }
   std::cout << std::endl;
 }
-
 
 int banker_algorithm::run() {
   switch(arg_handle.get_mode()) {
