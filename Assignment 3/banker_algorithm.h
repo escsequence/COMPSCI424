@@ -21,6 +21,8 @@ private:
 
   int run_auto(), run_manual();
 
+  void print_status();
+
   // Manual
   bool manual_process_inputs;
 

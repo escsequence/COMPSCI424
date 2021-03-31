@@ -61,7 +61,8 @@ namespace ba_command {
     CA_INVALID,
     CA_REQUEST,
     CA_RELEASE,
-    CA_END
+    CA_END,
+    CA_STATUS
   };
 
   struct command {
@@ -100,6 +101,10 @@ namespace ba_command {
           } else {
             std::cout << "Error! The input data is not completed (possibly missing some parameters?)." << std::endl;
             std::cout << "Try this format: request 3 of 1 for 0" << std::endl;
+          }
+        } else {
+          if (m == "status") {
+            c.action = CA_STATUS;
           }
         }
       }

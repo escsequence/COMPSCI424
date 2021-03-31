@@ -33,7 +33,7 @@ void banker_algorithm::init_parse_config() {
         break;
       case ba_config::CF_ALLOCATION:
         for (int i = 0; i < m; ++i) {
-          this->max[ma][i] = c.value_array[i];
+          this->allocation[ma][i] = c.value_array[i];
         }
         ma++;
         break;
@@ -120,6 +120,58 @@ void banker_algorithm::init_load_config() {
   }
 }
 
+void banker_algorithm::print_status() {
+  // Available
+  std::cout << "Available = [";
+  for (int im = 0; im < m; ++im) {
+    if (im != m-1)
+      std::cout << available[im] << ", ";
+    else
+    std::cout << available[im];
+
+  }
+  std::cout <<  "]" << std::endl;
+  std::cout << std::endl;
+  // Max
+  std::cout << "Max = " << std::endl;
+  for (int in = 0; in < n; ++in) {
+      std::cout << "[";
+      for (int im = 0; im < m; ++im) {
+        if (im != m-1)
+          std::cout << max[in][im] << ", ";
+        else
+        std::cout << max[in][im];
+      }
+      std::cout << "]" << std::endl;
+  }
+  std::cout << std::endl;
+  // Allocation
+  std::cout << "Allocation = " << std::endl;
+  for (int in = 0; in < n; ++in) {
+      std::cout << "[";
+      for (int im = 0; im < m; ++im) {
+        if (im != m-1)
+          std::cout << allocation[in][im] << ", ";
+        else
+        std::cout << allocation[in][im];
+      }
+      std::cout << "]" << std::endl;
+  }
+  std::cout << std::endl;
+  // Request
+  std::cout << "Request = " << std::endl;
+  for (int in = 0; in < n; ++in) {
+      std::cout << "[";
+      for (int im = 0; im < m; ++im) {
+        if (im != m-1)
+          std::cout << request[in][im] << ", ";
+        else
+        std::cout << request[in][im];
+      }
+      std::cout << "]" << std::endl;
+  }
+  std::cout << std::endl;
+}
 
 
 int banker_algorithm::run() {
@@ -164,6 +216,9 @@ int banker_algorithm::run_manual() {
       case ba_command::CA_END:
         manual_process_inputs = false;
         std::cout << "Program terminated." << std::endl;
+        break;
+      case ba_command::CA_STATUS:
+        print_status();
         break;
       default:
         std::cout << "Invalid input. Please either try \'request\', \'release\', or \'end\'" << std::endl;
