@@ -35,8 +35,8 @@ private:
 
   void print_status();
 
-  void request(int i, int j, int k);
-  void release(int i, int j, int k);
+  void trigger_request(int i, int j, int k);
+  void trigger_release(int i, int j, int k);
 
   bool valid(int &val);
 
