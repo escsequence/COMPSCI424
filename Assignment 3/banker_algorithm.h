@@ -1,6 +1,9 @@
 #ifndef BANKER_ALGORITHM_H
 #define BANKER_ALGORITHM_H
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
 #include "arg.h"
 #include "command_parser.h"
 
@@ -12,6 +15,9 @@ private:
   int** request;
   int n, m;
   arg arg_handle;
+  std::vector<ba_config::config> configuration;
+
+  void init(), init_load_config(), init_parse_config(), init_setup_array();
 
   int run_auto(), run_manual();
 
@@ -20,26 +26,16 @@ private:
 
   // Auto
 public:
-  banker_algorithm(arg a, int m, int n) {
-    // Store these for de-allocation later
-    this->n = n;
-    this->m = m;
-
+  banker_algorithm(arg a) {
     // Arguments passed in from the main method
     this->arg_handle = a;
 
-    // We allocate our space for this variables
-    available = new int[m];
-    max = new int*[n];
-    allocation = new int*[n];
-    request = new int*[n];
+    // Set up the vector for the configuration
+    configuration = std::vector<ba_config::config>();
 
-    // Since max, allocation, and request are 2d arrays
-    for (int i = 0; i < n; ++i) {
-      max[i] = new int[m];
-      allocation[i] = new int[m];
-      request[i] = new int[m];
-    }
+    // Run the initialize command
+    this->init();
+
   }
 
   // Remove our access to these resources

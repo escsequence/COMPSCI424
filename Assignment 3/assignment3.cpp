@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
 
   if (arg_handle.verify_mode_and_file()) {
     // Run the program
-    banker_algorithm ba = banker_algorithm(arg_handle, 1000, 2000);
+    banker_algorithm ba = banker_algorithm(arg_handle);
     return ba.run();
   } else {
     // Print out some help in-case the user is having difficulty running the program.
