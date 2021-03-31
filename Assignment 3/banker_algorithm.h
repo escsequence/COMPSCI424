@@ -35,6 +35,9 @@ private:
 
   void print_status();
 
+  void request(int i, int j, int k);
+  void release(int i, int j, int k);
+
   bool valid(int &val);
 
   // Manual

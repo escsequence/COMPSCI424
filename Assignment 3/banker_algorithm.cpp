@@ -11,7 +11,8 @@ void banker_algorithm::init() {
   init_parse_config();
 
   // Print status
-  std::cout << "%%%% Configuration loaded | n = " << this->n << " | m = " << this->m << std::endl;
+  std::cout << "#### Resources (m) = " << this->m << " | Processes (n) = " << this->n << std::endl;
+  std::cout << std::endl;
 }
 
 void banker_algorithm::init_parse_config() {
@@ -165,7 +166,7 @@ void banker_algorithm::print_status() {
   for (int in = 0; in < n; ++in) {
       std::cout << "[";
       for (int im = 0; im < m; ++im) {
-        std::string val = valid(max[in][im]) ? "-" : std::to_string(max[in][im]);
+        std::string val = valid(max[in][im]) ? "~" : std::to_string(max[in][im]);
         if (im != m-1)
           std::cout << val << ", ";
         else
@@ -179,7 +180,7 @@ void banker_algorithm::print_status() {
   for (int in = 0; in < n; ++in) {
       std::cout << "[";
       for (int im = 0; im < m; ++im) {
-        std::string val =  valid(allocation[in][im]) ? "-" : std::to_string(allocation[in][im]);
+        std::string val =  valid(allocation[in][im]) ? "~" : std::to_string(allocation[in][im]);
         if (im != m-1)
           std::cout << val << ", ";
         else
@@ -193,7 +194,7 @@ void banker_algorithm::print_status() {
   for (int in = 0; in < n; ++in) {
       std::cout << "[";
       for (int im = 0; im < m; ++im) {
-        std::string val = valid(request[in][im]) ? "-" : std::to_string(request[in][im]);
+        std::string val = valid(request[in][im]) ? "~" : std::to_string(request[in][im]);
         if (im != m-1)
           std::cout << val << ", ";
         else

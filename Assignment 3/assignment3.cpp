@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
   // Output the mode
   std::cout << "#### Mode = " << arg_handle.get_mode_str() << std::endl;
   std::cout << "#### File = " << arg_handle.get_file() << std::endl;
-  std::cout << std::endl;
+  //std::cout << std::endl;
 
   if (arg_handle.verify_mode_and_file()) {
     // Run the program
