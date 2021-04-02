@@ -13,13 +13,7 @@ private:
   // This value is the default value our array items are set to
   const int DEFAULT_UNDEFINED_VALUE = INT_MIN;
 
-  // Arrays
-  int* available;
-  int** max;
-  int** allocation;
-  int** request;
-
-  // n and m are stored for use to define the array sizes
+  ba::state *current_state;
   int n, m;
 
   // Argument package handler that holds the argument values
@@ -36,6 +30,10 @@ private:
   bool config_valid;
 
   int run_auto(), run_manual();
+
+  // State stuff
+  bool validate_state(ba::state *s);
+  void print_state(ba::state *s);
 
   void print_status();
 
@@ -59,19 +57,6 @@ public:
     // Run the initialize command
     this->init();
 
-  }
-
-  // Remove our access to these resources
-  ~banker_algorithm() {
-    for (int i = 0 ; i < n; ++i) {
-        delete[] max[i];
-        delete[] allocation[i];
-        delete[] request[i];
-      }
-      delete[] available;
-      delete[] max;
-      delete[] allocation;
-      delete[] request;
   }
 
   int run();

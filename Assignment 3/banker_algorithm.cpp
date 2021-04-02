@@ -1,11 +1,12 @@
 #include "banker_algorithm.h"
 
 void banker_algorithm::init() {
+
   // Load the configuration so we can set the n and m variables
   init_load_config();
 
-  // Setup our array
-  init_setup_array();
+  // Setup our state
+  current_state = new ba::state(this->n, this->m);
 
   // Parse the configuration data now
   init_parse_config();
@@ -22,34 +23,6 @@ void banker_algorithm::init() {
   // Print status
   std::cout << "#### Resources (m) = " << this->m << " | Processes (n) = " << this->n << std::endl;
   std::cout << std::endl;
-}
-
-void banker_algorithm::init_setup_array() {
-  // We allocate our space for this variables
-  available = new int[m];
-  max = new int*[n];
-  allocation = new int*[n];
-  request = new int*[n];
-
-  // Since max, allocation, and request are 2d arrays
-  for (int i = 0; i < n; ++i) {
-    max[i] = new int[m];
-    allocation[i] = new int[m];
-    request[i] = new int[m];
-  }
-
-  // Santize our array to be all DEFAULT_UNDEFINED_VALUE
-  for (int in = 0; in < n; ++in) {
-    for (int im = 0; im < m; ++im) {
-      max[in][im] = DEFAULT_UNDEFINED_VALUE;
-      allocation[in][im] = DEFAULT_UNDEFINED_VALUE;
-      request[in][im] = DEFAULT_UNDEFINED_VALUE;
-    }
-  }
-
-  for (int im = 0; im < m; ++im) {
-    available[im] = DEFAULT_UNDEFINED_VALUE;
-  }
 }
 
 void banker_algorithm::init_load_config() {
@@ -127,24 +100,24 @@ void banker_algorithm::init_parse_config() {
     switch(c.flag) {
       case ba::CF_AVAILABLE:
         for (int i = 0; i < m; ++i) {
-          this->available[i] = c.value[i];
+          this->current_state->available[i] = c.value[i];
         }
         break;
       case ba::CF_MAX:
         for (int i = 0; i < m; ++i) {
-          this->max[mp][i] = c.value[i];
+          this->current_state->max[mp][i] = c.value[i];
         }
         mp++;
         break;
       case ba::CF_ALLOCATION:
         for (int i = 0; i < m; ++i) {
-          this->allocation[ap][i] = c.value[i];
+          this->current_state->allocation[ap][i] = c.value[i];
         }
         ap++;
         break;
       case ba::CF_REQUEST:
         for (int i = 0; i < m; ++i) {
-          this->request[rp][i] = c.value[i];
+          this->current_state->request[rp][i] = c.value[i];
         }
         rp++;
         break;
@@ -153,11 +126,14 @@ void banker_algorithm::init_parse_config() {
 }
 
 bool banker_algorithm::init_validate_config() {
+  return validate_state(this->current_state);
+}
 
+bool banker_algorithm::validate_state(ba::state *s) {
   // 1. Allocation <= Maximum
   for (int in = 0; in < n; ++in) {
     for (int im = 0; im < m; ++im) {
-      if (allocation[in][im] > max[in][im]) {
+      if (s->allocation[in][im] > s->max[in][im]) {
         return false;
       }
     }
@@ -172,24 +148,24 @@ bool banker_algorithm::valid(int &val) {
   return (val == DEFAULT_UNDEFINED_VALUE);
 }
 
-void banker_algorithm::print_status() {
+void banker_algorithm::print_state(ba::state *s) {
   // Available
   std::cout << "Available = " << std::endl << "[";
-  for (int im = 0; im < m; ++im) {
+  for (int im = 0; im < s->m; ++im) {
     if (im != m-1)
-      std::cout << available[im] << ", ";
+      std::cout << s->available[im] << ", ";
     else
-    std::cout << available[im];
+    std::cout << s->available[im];
 
   }
   std::cout <<  "]" << std::endl;
   std::cout << std::endl;
   // Max
   std::cout << "Max = " << std::endl;
-  for (int in = 0; in < n; ++in) {
+  for (int in = 0; in < s->n; ++in) {
       std::cout << "[";
-      for (int im = 0; im < m; ++im) {
-        std::string val = valid(max[in][im]) ? "~" : std::to_string(max[in][im]);
+      for (int im = 0; im < s->m; ++im) {
+        std::string val = valid(s->max[in][im]) ? "~" : std::to_string(s->max[in][im]);
         if (im != m-1)
           std::cout << val << ", ";
         else
@@ -200,10 +176,10 @@ void banker_algorithm::print_status() {
   std::cout << std::endl;
   // Allocation
   std::cout << "Allocation = " << std::endl;
-  for (int in = 0; in < n; ++in) {
+  for (int in = 0; in < s->n; ++in) {
       std::cout << "[";
-      for (int im = 0; im < m; ++im) {
-        std::string val =  valid(allocation[in][im]) ? "~" : std::to_string(allocation[in][im]);
+      for (int im = 0; im < s->m; ++im) {
+        std::string val =  valid(s->allocation[in][im]) ? "~" : std::to_string(s->allocation[in][im]);
         if (im != m-1)
           std::cout << val << ", ";
         else
@@ -214,10 +190,10 @@ void banker_algorithm::print_status() {
   std::cout << std::endl;
   // Request
   std::cout << "Request = " << std::endl;
-  for (int in = 0; in < n; ++in) {
+  for (int in = 0; in < s->n; ++in) {
       std::cout << "[";
-      for (int im = 0; im < m; ++im) {
-        std::string val = valid(request[in][im]) ? "~" : std::to_string(request[in][im]);
+      for (int im = 0; im < s->m; ++im) {
+        std::string val = valid(s->request[in][im]) ? "~" : std::to_string(s->request[in][im]);
         if (im != m-1)
           std::cout << val << ", ";
         else
@@ -226,6 +202,10 @@ void banker_algorithm::print_status() {
       std::cout << "]" << std::endl;
   }
   std::cout << std::endl;
+}
+
+void banker_algorithm::print_status() {
+  print_state(current_state);
 }
 
 int banker_algorithm::run() {
