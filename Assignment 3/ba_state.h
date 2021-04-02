@@ -10,6 +10,7 @@ namespace ba {
     public:
       // Our arrays
       int* available;
+      int* total;
       int** max;
       int** allocation;
       int** request;
@@ -22,6 +23,7 @@ namespace ba {
 
         // We allocate our space for this variables
         available = new int[m];
+        total = new int[m];
         max = new int*[n];
         allocation = new int*[n];
         request = new int*[n];
@@ -43,6 +45,7 @@ namespace ba {
         }
 
         for (int im = 0; im < m; ++im) {
+          total[im] = DEFAULT_UNDEFINED_VALUE;
           available[im] = DEFAULT_UNDEFINED_VALUE;
         }
       }

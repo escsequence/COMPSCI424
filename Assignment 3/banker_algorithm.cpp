@@ -139,6 +139,17 @@ bool banker_algorithm::validate_state(ba::state *s) {
     }
   }
   // 2. All of Allocation + Avaiable = Total
+  for (int rm = 0; rm < m; ++rm) {
+    int alloc = 0;
+    for (int in = 0; in < n; ++in) {
+      for (int im = 0; im < m; ++im) {
+        //if (s->allocation[in][im] > s->max[in][im]) {
+          //return false;
+        alloc += s->allocation[in][im];
+      }
+    }
+    s->total[rm] = alloc + s->available[rm];
+  }
 
 
   return true;
@@ -156,6 +167,16 @@ void banker_algorithm::print_state(ba::state *s) {
       std::cout << s->available[im] << ", ";
     else
     std::cout << s->available[im];
+
+  }
+  std::cout <<  "]" << std::endl;
+  std::cout << std::endl;
+  std::cout << "Total = " << std::endl << "[";
+  for (int im = 0; im < s->m; ++im) {
+    if (im != m-1)
+      std::cout << s->total[im] << ", ";
+    else
+    std::cout << s->total[im];
 
   }
   std::cout <<  "]" << std::endl;
@@ -202,6 +223,7 @@ void banker_algorithm::print_state(ba::state *s) {
       std::cout << "]" << std::endl;
   }
   std::cout << std::endl;
+
 }
 
 void banker_algorithm::print_status() {
