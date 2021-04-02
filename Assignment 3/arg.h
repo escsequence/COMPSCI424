@@ -1,6 +1,6 @@
 #ifndef ARG_H
 #define ARG_H
-#include "mode.h"
+#include "ba_mode.h"
 class arg {
   private:
     // Count of the arguments.
@@ -10,7 +10,7 @@ class arg {
     char **v;
 
     // Bankers algorthim mode from argument 2
-    ba_mode m;
+    ba::mode m;
 
     // File name from argument 3
     std::string f;
@@ -25,7 +25,7 @@ class arg {
       // If the count is greater than 1 (meaning there is a single argument)
       if (c > 1) {
         // try and find a mode based on the string
-        m = str_to_mode(v[1]);
+        m = ba::str_to_mode(v[1]);
       }
 
       // If the count is greater than 2 (meaning there are two arguments)
@@ -44,9 +44,9 @@ class arg {
        */
       std::string get_mode_str() {
         switch(m) {
-          case BA_AUTO:
+          case ba::BM_AUTO:
             return "auto";
-          case BA_MANUAL:
+          case ba::BM_MANUAL:
             return "manual";
           default:
             return "invalid";
@@ -58,7 +58,7 @@ class arg {
        *
        * @return mode of the argument object, this should be the second parameter.
        */
-      ba_mode get_mode() {
+      ba::mode get_mode() {
         return m;
       }
 
@@ -77,7 +77,7 @@ class arg {
        * @returns true if the mode is not invalid and file is not empty.
        */
       bool verify_mode_and_file() {
-        return (f != "" && (m == BA_AUTO || m == BA_MANUAL));
+        return (f != "" && (m == ba::BM_AUTO || m == ba::BM_MANUAL));
       }
 };
 #endif

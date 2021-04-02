@@ -10,43 +10,18 @@ void banker_algorithm::init() {
   // Parse the configuration data now
   init_parse_config();
 
+  // Verify the data is valid
+  if (!init_validate_config()) {
+    std::cout << "!!!! Configuration/system is unsafe, please verify the configuration and re-run." << std::endl;
+    config_valid = false;
+    return;
+  } else {
+    config_valid = true;
+  }
+
   // Print status
   std::cout << "#### Resources (m) = " << this->m << " | Processes (n) = " << this->n << std::endl;
   std::cout << std::endl;
-}
-
-void banker_algorithm::init_parse_config() {
-  // Loop through all the config stuff
-  int mp = 0;
-  int ap = 0;
-  int rp = 0;
-  for(ba_config::config c: configuration) {
-    switch(c.flag) {
-      case ba_config::CF_AVAILABLE:
-        for (int i = 0; i < m; ++i) {
-          this->available[i] = c.value_array[i];
-        }
-        break;
-      case ba_config::CF_MAX:
-        for (int i = 0; i < m; ++i) {
-          this->max[mp][i] = c.value_array[i];
-        }
-        mp++;
-        break;
-      case ba_config::CF_ALLOCATION:
-        for (int i = 0; i < m; ++i) {
-          this->allocation[ap][i] = c.value_array[i];
-        }
-        ap++;
-        break;
-      case ba_config::CF_REQUEST:
-        for (int i = 0; i < m; ++i) {
-          this->request[rp][i] = c.value_array[i];
-        }
-        rp++;
-        break;
-    }
-  }
 }
 
 void banker_algorithm::init_setup_array() {
@@ -75,8 +50,6 @@ void banker_algorithm::init_setup_array() {
   for (int im = 0; im < m; ++im) {
     available[im] = DEFAULT_UNDEFINED_VALUE;
   }
-
-
 }
 
 void banker_algorithm::init_load_config() {
@@ -91,7 +64,7 @@ void banker_algorithm::init_load_config() {
 
     std::string line;
     bool n_set, m_set;
-    ba_config::config_flag current_flag = ba_config::CF_INVALID;
+    ba::config_flag current_flag = ba::CF_INVALID;
 
     while(std::getline(config_file, line)) {
       std::vector<std::string> parsed_elements = split(line, ' ');
@@ -115,26 +88,26 @@ void banker_algorithm::init_load_config() {
       } else {
         if (parsed_elements.size() == m) {
           // This is most likely an entry
-          ba_config::config config_to_insert;
+          ba::config config_to_insert;
           config_to_insert.flag = current_flag;
-          config_to_insert.value_array = new int[n];
+          config_to_insert.value = new int[n];
           for (int i = 0; i < m; ++i) {
-            config_to_insert.value_array[i] = std::stoi(parsed_elements[i]);
+            config_to_insert.value[i] = std::stoi(parsed_elements[i]);
           }
           configuration.push_back(config_to_insert);
           //std::cout << "Added this data as a configuration for (flag = " << config_to_insert.flag << ")" << std::endl;
         } else {
           if (parsed_elements[0] == "Available") {
-            current_flag = ba_config::CF_AVAILABLE;
+            current_flag = ba::CF_AVAILABLE;
             //std::cout << "FLAG SET TO AVALIABLE" << std::endl;
           } else if (parsed_elements[0] == "Max") {
-            current_flag = ba_config::CF_MAX;
+            current_flag = ba::CF_MAX;
             //std::cout << "FLAG SET TO MAX" << std::endl;
           } else if (parsed_elements[0] == "Allocation") {
-            current_flag = ba_config::CF_ALLOCATION;
+            current_flag = ba::CF_ALLOCATION;
             //std::cout << "FLAG SET TO ALLOCATION" << std::endl;
           } else if (parsed_elements[0] == "Requests" || parsed_elements[0] == "Request") {
-            current_flag = ba_config::CF_REQUEST;
+            current_flag = ba::CF_REQUEST;
           }
           // Probably a keyword to define what we are looking for
         }
@@ -143,6 +116,56 @@ void banker_algorithm::init_load_config() {
     }
     config_file.close();
   }
+}
+
+void banker_algorithm::init_parse_config() {
+  // Loop through all the config stuff
+  int mp = 0;
+  int ap = 0;
+  int rp = 0;
+  for(ba::config c: configuration) {
+    switch(c.flag) {
+      case ba::CF_AVAILABLE:
+        for (int i = 0; i < m; ++i) {
+          this->available[i] = c.value[i];
+        }
+        break;
+      case ba::CF_MAX:
+        for (int i = 0; i < m; ++i) {
+          this->max[mp][i] = c.value[i];
+        }
+        mp++;
+        break;
+      case ba::CF_ALLOCATION:
+        for (int i = 0; i < m; ++i) {
+          this->allocation[ap][i] = c.value[i];
+        }
+        ap++;
+        break;
+      case ba::CF_REQUEST:
+        for (int i = 0; i < m; ++i) {
+          this->request[rp][i] = c.value[i];
+        }
+        rp++;
+        break;
+    }
+  }
+}
+
+bool banker_algorithm::init_validate_config() {
+
+  // 1. Allocation <= Maximum
+  for (int in = 0; in < n; ++in) {
+    for (int im = 0; im < m; ++im) {
+      if (allocation[in][im] > max[in][im]) {
+        return false;
+      }
+    }
+  }
+  // 2. All of Allocation + Avaiable = Total
+
+
+  return true;
 }
 
 bool banker_algorithm::valid(int &val) {
@@ -206,11 +229,15 @@ void banker_algorithm::print_status() {
 }
 
 int banker_algorithm::run() {
+  // Invalid configuration detected.
+  if (!config_valid)
+    return 1;
+
   switch(arg_handle.get_mode()) {
-    case BA_MANUAL:
+    case ba::BM_MANUAL:
       // Process inputs
       return run_manual();
-    case BA_AUTO:
+    case ba::BM_AUTO:
       // Run automatically
       return run_auto();
     default:
@@ -236,19 +263,19 @@ int banker_algorithm::run_manual() {
     getline(std::cin, entry);
 
     // Get the current command (parsing it from our static function)
-    ba_command::command current = ba_command::parse(entry);
+    ba::command current = ba::parse(entry);
 
     // Identify what wer are trying to do..
     switch (current.action) {
-      case ba_command::CA_REQUEST:
+      case ba::CA_REQUEST:
         break;
-      case ba_command::CA_RELEASE:
+      case ba::CA_RELEASE:
         break;
-      case ba_command::CA_END:
+      case ba::CA_END:
         manual_process_inputs = false;
         std::cout << "Program terminated." << std::endl;
         break;
-      case ba_command::CA_STATUS:
+      case ba::CA_STATUS:
         print_status();
         break;
       default:

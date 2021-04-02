@@ -6,7 +6,7 @@
 #include <string>
 #include <climits>
 #include "arg.h"
-#include "command_parser.h"
+#include "ba.h"
 
 class banker_algorithm {
 private:
@@ -26,10 +26,14 @@ private:
   arg arg_handle;
 
   // Configuration array of configuration entries from the file
-  std::vector<ba_config::config> configuration;
+  std::vector<ba::config> configuration;
 
-  void init(), init_load_config(), init_parse_config(), init_setup_array();
-  void reload_config();
+  void init(), init_setup_array();
+
+  // Configuration
+  void init_load_config(), init_parse_config();
+  bool init_validate_config();
+  bool config_valid;
 
   int run_auto(), run_manual();
 
@@ -50,7 +54,7 @@ public:
     this->arg_handle = a;
 
     // Set up the vector for the configuration
-    configuration = std::vector<ba_config::config>();
+    configuration = std::vector<ba::config>();
 
     // Run the initialize command
     this->init();
