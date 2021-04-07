@@ -17,6 +17,50 @@ namespace ba {
 
       int n, m;
 
+      state(const state& s) {
+        this->n = s.n;
+        this->m = s.m;
+
+        this->available = new int[m];
+        //*this->available = *s.available;
+
+        this->total = new int[m];
+        //*this->total = *s.total;
+
+        this->max = new int*[n];
+        //*this->max = *s.max;
+
+        this->allocation = new int*[n];
+        //*this->allocation = *s.allocation;
+
+        this->request = new int*[n];
+        //*this->request = *s.request;
+
+        for (int i = 0; i < n; ++i) {
+          this->max[i] = new int[m];
+          //*this->max[i] = *s.max[i];
+
+          this->allocation[i] = new int[m];
+          //*this->allocation[i] = *s.allocation[i];
+
+          this->request[i] = new int[m];
+          //*this->request[i] = *s.request[i];
+        }
+
+        for (int in = 0; in < s.n; ++in) {
+          for (int im = 0; im < s.m; ++im) {
+            this->max[in][im] = s.max[in][im];
+            this->allocation[in][im] = s.allocation[in][im];
+            this->request[in][im] = s.request[in][im];
+          }
+        }
+
+        for (int im = 0; im < s.m; ++im) {
+          this->total[im] = s.total[im];
+          this->available[im] = s.available[im];
+        }
+      }
+
       state(int n, int m) {
         this->n = n;
         this->m = m;
@@ -59,6 +103,10 @@ namespace ba {
           delete[] max;
           delete[] allocation;
           delete[] request;
+      }
+
+      int potential(int r, int p) {
+        return max[r][p] - allocation[r][p];
       }
   };
 }

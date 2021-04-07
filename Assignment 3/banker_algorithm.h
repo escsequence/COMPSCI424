@@ -14,6 +14,7 @@ private:
   const int DEFAULT_UNDEFINED_VALUE = INT_MIN;
 
   ba::state *current_state;
+  ba::state *temp_state;
   int n, m;
 
   // Argument package handler that holds the argument values
@@ -37,8 +38,9 @@ private:
 
   void print_status();
 
-  void trigger_request(int i, int j, int k);
-  void trigger_release(int i, int j, int k);
+  bool deadlock_detect(ba::state *state, int i, int j);
+  bool request(int i, int j, int k);
+  ba::state* release(int i, int j, int k);
 
   bool valid(int &val);
 

@@ -156,7 +156,7 @@ bool banker_algorithm::validate_state(ba::state *s) {
 }
 
 bool banker_algorithm::valid(int &val) {
-  return (val == DEFAULT_UNDEFINED_VALUE);
+  return (val != DEFAULT_UNDEFINED_VALUE);
 }
 
 void banker_algorithm::print_state(ba::state *s) {
@@ -186,7 +186,7 @@ void banker_algorithm::print_state(ba::state *s) {
   for (int in = 0; in < s->n; ++in) {
       std::cout << "[";
       for (int im = 0; im < s->m; ++im) {
-        std::string val = valid(s->max[in][im]) ? "~" : std::to_string(s->max[in][im]);
+        std::string val = valid(s->max[in][im]) ? std::to_string(s->max[in][im]) : "~";
         if (im != m-1)
           std::cout << val << ", ";
         else
@@ -200,7 +200,7 @@ void banker_algorithm::print_state(ba::state *s) {
   for (int in = 0; in < s->n; ++in) {
       std::cout << "[";
       for (int im = 0; im < s->m; ++im) {
-        std::string val =  valid(s->allocation[in][im]) ? "~" : std::to_string(s->allocation[in][im]);
+        std::string val =  valid(s->allocation[in][im]) ? std::to_string(s->allocation[in][im]) : "~";
         if (im != m-1)
           std::cout << val << ", ";
         else
@@ -214,7 +214,7 @@ void banker_algorithm::print_state(ba::state *s) {
   for (int in = 0; in < s->n; ++in) {
       std::cout << "[";
       for (int im = 0; im < s->m; ++im) {
-        std::string val = valid(s->request[in][im]) ? "~" : std::to_string(s->request[in][im]);
+        std::string val = valid(s->request[in][im]) ? std::to_string(s->request[in][im]) : "~";
         if (im != m-1)
           std::cout << val << ", ";
         else
@@ -268,8 +268,20 @@ int banker_algorithm::run_manual() {
     ba::command current = ba::parse(entry);
 
     // Identify what wer are trying to do..
+    //ba::state* tmp_state = NULL;
     switch (current.action) {
       case ba::CA_REQUEST:
+        //tmp_state = request(current.i, current.j, current.k);
+
+        if (!request(current.i, current.j, current.k)) {
+          // Failed to take changes
+          std::cout << "Deadlock was detected. Changes were not accepted." << std::endl;
+        } else {
+          std::cout << "No deadlock detected, changes accepted." << std::endl;
+          //current_state = temp_state;
+        }
+        //if (request(current.i, current.j, current.k)
+        //std::cout << "i = " << current.i << " | j = " << current.j << " | k = " << current.k << std::endl;
         break;
       case ba::CA_RELEASE:
         break;
@@ -294,4 +306,55 @@ int banker_algorithm::run_manual() {
 int banker_algorithm::run_auto() {
   // Yet to be developed.
   return 0;
+}
+
+bool banker_algorithm::deadlock_detect(ba::state *state, int i, int j) {
+  int tmp_potential_max = 0;
+  for (int im = 0; im < state->m; ++im) {
+      tmp_potential_max = (state->potential(j, im) > tmp_potential_max) ? state->potential(j, im) : tmp_potential_max;
+  }
+  return (state->available[j] <= tmp_potential_max);
+}
+
+bool banker_algorithm::request(int i, int j, int k) {
+  // We mirror our state into a temporary state
+  temp_state = new ba::state(*current_state);
+
+  bool keep_changes = false;
+
+  // Verify that criteria is met for this state
+  //print_state(ns);
+  if (i >= 0 && (i <= temp_state->max[k][j])) {
+    if (j >= 0 && (j <= temp_state->m-1)) { // Resource
+      if (k >= 0 && (k <= temp_state->n-1)) { // Process
+        //std::cout << "We made it." << std::endl;
+        // Update certain points for this state
+
+        if (valid(temp_state->allocation[k][j])) {
+          temp_state->allocation[k][j]+= i;
+        } else {
+          temp_state->allocation[k][j] = i;
+        }
+
+        if (valid(temp_state->request[k][j])) {
+          temp_state->request[k][j]-= i;
+        } else {
+          temp_state->request[k][j]= i;
+        }
+
+        temp_state->available[j]-= i;
+
+
+        print_state(temp_state);
+
+        // Detect if we are in a deadlock state
+        return !deadlock_detect(temp_state, i, j);
+      }
+    }
+  }
+  return false;
+}
+
+ba::state* banker_algorithm::release(int i, int j, int k) {
+  return current_state;
 }
