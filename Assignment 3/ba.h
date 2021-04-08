@@ -47,4 +47,5 @@ static std::vector<std::string> split(const std::string &s, char delim) {
 #include "ba_config.h"
 #include "ba_command.h"
 #include "ba_state.h"
+#include "ba_log.h"
 #endif

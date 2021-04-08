@@ -288,12 +288,11 @@ int banker_algorithm::run_manual() {
         //tmp_state = request(current.i, current.j, current.k);
 
         if (request(current_state, current.i, current.j, current.k)) {
-          std::cout << "No deadlock detected. Aquiring..." << std::endl;
+          ba::log(ba::LF_REQUEST, arg_handle.get_mode(), current, true);
           temp_state->aquire(current.i, current.j, current.k);
           current_state = temp_state;
         } else {
-          // Failed to take changes
-          std::cout << "Deadlock was detected. Changes were not accepted." << std::endl;
+          ba::log(ba::LF_REQUEST, arg_handle.get_mode(), current, false);
         }
         break;
       case ba::CA_RELEASE:
@@ -301,9 +300,9 @@ int banker_algorithm::run_manual() {
         if (valid_release(current_state, current.i, current.j, current.k)) {
           // Yep, so now release it.
           current_state->release(current.i, current.j, current.k);
-
+          ba::log(ba::LF_RELEASE, arg_handle.get_mode(), current, true);
         } else {
-          std::cout << "Error, invalid." << std::endl;
+          ba::log(ba::LF_RELEASE, arg_handle.get_mode(), current, false);
         }
         break;
       case ba::CA_END:
