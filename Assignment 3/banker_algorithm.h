@@ -1,3 +1,11 @@
+/**
+ * ba - (Bankers Algorithm)
+ * banker_algorithm.h
+ * Author: James Johnston
+
+ * This is the main container for the assignment 3. Holds the logic and
+ * processing of inputs data and more for the algorithm.
+ */
 #ifndef BANKER_ALGORITHM_H
 #define BANKER_ALGORITHM_H
 #include <iostream>
@@ -18,8 +26,10 @@ private:
   // This value is the default value our array items are set to
   const int DEFAULT_UNDEFINED_VALUE = INT_MIN;
 
+  // Current state (used mainly for manual run)
   ba::state *current_state;
-  ba::state *temp_state;
+
+  // Values of our process and resource count.
   int n, m;
 
   // Argument package handler that holds the argument values
@@ -28,6 +38,7 @@ private:
   // Configuration array of configuration entries from the file
   std::vector<ba::config> configuration;
 
+  // Initalization steps
   void init(), init_setup_array();
 
   // Configuration
@@ -35,12 +46,14 @@ private:
   bool init_validate_config();
   bool config_valid;
 
+  // Our run methods
   int run_auto(), run_manual();
 
   // State stuff
   bool validate_state(ba::state *s);
   void print_state(ba::state *s);
 
+  // Prints the status of our current_state.
   void print_status();
 
   bool deadlock_detect(ba::state *state);

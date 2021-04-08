@@ -1,6 +1,22 @@
+/**
+ * ba - (Bankers Algorithm)
+ * ba_command.h
+ * Author: James Johnston
+ *
+ * Structure of each command for manual mode of this program.
+ */
 #ifndef BA_COMMAND_H
 #define BA_COMMAND_H
 namespace ba {
+  /**
+   * command_action enumerator
+   *
+   * CA_INVALID - Invalid action entry.
+   * CA_REQUEST - Request action.
+   * CA_RELEASE - Release action.
+   * CA_END - Ending action, we end the program.
+   * CA_STATUS - Custom entry, we output the status of our array.
+   */
   enum command_action {
     CA_INVALID,
     CA_REQUEST,
@@ -9,11 +25,22 @@ namespace ba {
     CA_STATUS
   };
 
+  /**
+   * command structure
+   *
+   * int values are stored from the command as: i of j for k
+   */
   struct command {
-    int i, j, k;
-    command_action action;
+    int i, j, k; // Values of the standardized i of j for k.
+    command_action action; // Action the user wants to perform
   };
 
+  /**
+   * Parses a string a user enters into a valid command.
+   *
+   * @param m raw string to parse (style = i of j for k for basic request and release)
+   * @return ba::command command the user wants to process.
+   */
   static command parse(std::string m) {
     command c;
     // default

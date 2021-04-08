@@ -1,3 +1,10 @@
+/**
+ * ba - (Bankers Algorithm)
+ * ba_state.h
+ * Author: James Johnston
+ *
+ * Holds a class structure for a state of which the algorithm may exist.
+ */
 #ifndef BA_STATE_H
 #define BA_STATE_H
 #include <climits>
@@ -17,36 +24,25 @@ namespace ba {
 
       int n, m;
 
+      // For this constructor we want to copy our state to this one.
       state(const state& s) {
         this->n = s.n;
         this->m = s.m;
 
+        // Allocate the location in memory
         this->available = new int[m];
-        //*this->available = *s.available;
-
         this->total = new int[m];
-        //*this->total = *s.total;
-
         this->max = new int*[n];
-        //*this->max = *s.max;
-
         this->allocation = new int*[n];
-        //*this->allocation = *s.allocation;
-
         this->request = new int*[n];
-        //*this->request = *s.request;
 
         for (int i = 0; i < n; ++i) {
           this->max[i] = new int[m];
-          //*this->max[i] = *s.max[i];
-
           this->allocation[i] = new int[m];
-          //*this->allocation[i] = *s.allocation[i];
-
           this->request[i] = new int[m];
-          //*this->request[i] = *s.request[i];
         }
 
+        // Now copy the data from a state to this one
         for (int in = 0; in < s.n; ++in) {
           for (int im = 0; im < s.m; ++im) {
             this->max[in][im] = s.max[in][im];
@@ -55,6 +51,7 @@ namespace ba {
           }
         }
 
+        // Same for this 1d array ones
         for (int im = 0; im < s.m; ++im) {
           this->total[im] = s.total[im];
           this->available[im] = s.available[im];
@@ -105,10 +102,24 @@ namespace ba {
           delete[] request;
       }
 
+      /**
+       * Returns the potential value calculated based on the process/resource used
+       * @param r Process id.
+       * @param p Resource id.
+       * @return int value of the potential, used to calculate values for the algorithm.
+       */
       int potential(int r, int p) {
         return max[r][p] - allocation[r][p];
       }
 
+      /**
+       * Processes a request if possible for the state.
+       *
+       * @param i Resource amount to be requested.
+       * @param j Resource id.
+       * @param k Process id.
+       * @return bool if the request was successful for not (does not attempt to verify with the algorithm).
+       */
       bool requestr(int i, int j, int k) {
         if (i >= 0 && (i <= this->max[k][j])) {
           if (j >= 0 && (j <= this->m-1)) { // Resource
@@ -125,6 +136,13 @@ namespace ba {
         return false;
       }
 
+      /**
+       * Processes an aquire action if possible for the state (make sure to requestr before).
+       *
+       * @param i Resource amount to be requested.
+       * @param j Resource id.
+       * @param k Process id.
+       */
       void aquire(int i, int j, int k) {
         this->available[j] -= i;
 
@@ -137,6 +155,13 @@ namespace ba {
         this->request[k][j] -= i;
       }
 
+      /**
+       * Processes a release action if possible for the state (make sure an aquire/requestr has been process prior).
+       *
+       * @param i Resource amount to be requested.
+       * @param j Resource id.
+       * @param k Process id.
+       */
       void release(int i, int j, int k) {
         this->available[j] += i;
         this->allocation[k][j] -= i;

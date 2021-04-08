@@ -8,15 +8,12 @@
 #include <iostream>
 #include "banker_algorithm.h"
 
-const bool VERBOSE_PRINTING = true; // Turn this off for less verbose data logged
-
 int main(int argc, char** argv) {
   std::cout << "##########################################" << std::endl;
   std::cout << "####            Assignment 3          ####" << std::endl;
   std::cout << "####      THE BANKER'S ALGORITHM      ####" << std::endl;
   std::cout << "####    COMPSCI424 - James Johnston   ####" << std::endl;
   std::cout << "##########################################" << std::endl;
-  //std::cout << std::endl;
 
   // Accept the argument data into our arg object
   arg arg_handle = arg(argc, argv);
@@ -24,8 +21,7 @@ int main(int argc, char** argv) {
   // Output the mode
   std::cout << "#### Mode = " << arg_handle.get_mode_str() << std::endl;
   std::cout << "#### File = " << arg_handle.get_file() << std::endl;
-  //std::cout << std::endl;
-
+  
   if (arg_handle.verify_mode_and_file()) {
     // Run the program
     banker_algorithm ba = banker_algorithm(arg_handle);

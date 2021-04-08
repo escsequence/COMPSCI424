@@ -51,11 +51,7 @@ void banker_algorithm::init_load_config() {
 
     while(std::getline(config_file, line)) {
       std::vector<std::string> parsed_elements = split(line, ' ');
-      // for(std::string ele : parsed_elements) {
-      //   std::cout << "[e]: " << ele << std::endl;
-      // }
-      //std::cout << "size of the parsed elements: " << parsed_elements.size() << std::endl;
-
+      
       if (!n_set || !m_set) {
         if (parsed_elements.size() == 2) {
           if (parsed_elements[1] == "processes") {

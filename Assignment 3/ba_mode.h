@@ -1,7 +1,14 @@
+/**
+ * ba - (Bankers Algorithm)
+ * ba_mode.h
+ * Author: James Johnston
+ *
+ * Contains a function and a flag (log_flag) to help determine the mode
+ * the user is using for the bankers algorithm program.
+ */
 #ifndef BA_MODE_H
 #define BA_MODE_H
 #include <iostream>
-
 namespace ba {
   /**
    * mode enumerator

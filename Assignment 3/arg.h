@@ -1,3 +1,10 @@
+/**
+ * arg.h
+ * Author: James Johnston
+ *
+ * Structure for holding the argument data passed in from the main method of the program.
+ * Allows us to easily pass this information to other classes and objects.
+ */
 #ifndef ARG_H
 #define ARG_H
 #include "ba_mode.h"
