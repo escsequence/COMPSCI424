@@ -223,7 +223,21 @@ void banker_algorithm::print_state(ba::state *s) {
       std::cout << "]" << std::endl;
   }
   std::cout << std::endl;
-
+  // Potential
+  std::cout << "Potential = " << std::endl;
+  for (int in = 0; in < s->n; ++in) {
+      std::cout << "[";
+      for (int im = 0; im < s->m; ++im) {
+        int po_val = s->potential(in, im);
+        std::string val = valid(po_val) ? std::to_string(po_val) : "~";
+        if (im != m-1)
+          std::cout << val << ", ";
+        else
+        std::cout << val;
+      }
+      std::cout << "]" << std::endl;
+  }
+  std::cout << std::endl;
 }
 
 void banker_algorithm::print_status() {
@@ -273,17 +287,24 @@ int banker_algorithm::run_manual() {
       case ba::CA_REQUEST:
         //tmp_state = request(current.i, current.j, current.k);
 
-        if (!request(current.i, current.j, current.k)) {
+        if (request(current_state, current.i, current.j, current.k)) {
+          std::cout << "No deadlock detected. Aquiring..." << std::endl;
+          temp_state->aquire(current.i, current.j, current.k);
+          current_state = temp_state;
+        } else {
           // Failed to take changes
           std::cout << "Deadlock was detected. Changes were not accepted." << std::endl;
-        } else {
-          std::cout << "No deadlock detected, changes accepted." << std::endl;
-          //current_state = temp_state;
         }
-        //if (request(current.i, current.j, current.k)
-        //std::cout << "i = " << current.i << " | j = " << current.j << " | k = " << current.k << std::endl;
         break;
       case ba::CA_RELEASE:
+        // Validate the data is okay to be releasedd
+        if (valid_release(current_state, current.i, current.j, current.k)) {
+          // Yep, so now release it.
+          current_state->release(current.i, current.j, current.k);
+
+        } else {
+          std::cout << "Error, invalid." << std::endl;
+        }
         break;
       case ba::CA_END:
         manual_process_inputs = false;
@@ -308,53 +329,68 @@ int banker_algorithm::run_auto() {
   return 0;
 }
 
-bool banker_algorithm::deadlock_detect(ba::state *state, int i, int j) {
-  int tmp_potential_max = 0;
-  for (int im = 0; im < state->m; ++im) {
-      tmp_potential_max = (state->potential(j, im) > tmp_potential_max) ? state->potential(j, im) : tmp_potential_max;
+bool banker_algorithm::dl_available(ba::state *state, int process) {
+  bool fl = true;
+  for (int i = 0; i < state->m; ++i) {
+    //std::cout << "Potential[" << process << "][" << i << "] = " << state->potential(process, i) << std::endl;
+    //std::cout << "Available[" << i << "] = " << state->available[i] << std::endl;
+    fl = (state->potential(process, i) > state->available[i]) ? false : fl;
   }
-  return (state->available[j] <= tmp_potential_max);
+  return fl;
 }
 
-bool banker_algorithm::request(int i, int j, int k) {
+void banker_algorithm::dl_safe(bool marked[], ba::state *state, std::vector<int> safe) {
+  // Loop through all the processes
+  for (int in = 0; in < state->n; ++in) {
+    //std::cout << "marked[" << in << "] = " << marked[in] << std::endl;
+    if (!marked[in] && dl_available(state, in)) {
+
+      marked[in] = true;
+
+      for (int im = 0; im < state->m; ++im)
+        state->available[im] += state->allocation[in][im];
+
+      safe.push_back(in);
+      dl_safe(marked, state, safe);
+      safe.pop_back();
+
+      marked[in] = false;
+
+      for (int im = 0; im < state->m; ++im)
+        state->available[im] -= state->allocation[in][im];
+    }
+  }
+  //std::cout << "Safe size = " << safe.size() << std::endl;
+  if (safe.size() == this->m) {
+    dl_tmp_total++;
+  }
+
+}
+
+
+
+bool banker_algorithm::deadlock_detect(ba::state *state) {
+  std::vector<int> safe;
+  this->dl_tmp_total = 0;
+  bool marked[state->n];
+  memset(marked, false, sizeof(marked));
+  dl_safe(marked, state, safe);
+  //std::cout << "dl_tmp_total = " << dl_tmp_total << std::endl;
+  return dl_tmp_total == 0;
+}
+
+bool banker_algorithm::request(ba::state *s, int i, int j, int k) {
   // We mirror our state into a temporary state
   temp_state = new ba::state(*current_state);
 
-  bool keep_changes = false;
-
-  // Verify that criteria is met for this state
-  //print_state(ns);
-  if (i >= 0 && (i <= temp_state->max[k][j])) {
-    if (j >= 0 && (j <= temp_state->m-1)) { // Resource
-      if (k >= 0 && (k <= temp_state->n-1)) { // Process
-        //std::cout << "We made it." << std::endl;
-        // Update certain points for this state
-
-        if (valid(temp_state->allocation[k][j])) {
-          temp_state->allocation[k][j]+= i;
-        } else {
-          temp_state->allocation[k][j] = i;
-        }
-
-        if (valid(temp_state->request[k][j])) {
-          temp_state->request[k][j]-= i;
-        } else {
-          temp_state->request[k][j]= i;
-        }
-
-        temp_state->available[j]-= i;
-
-
-        print_state(temp_state);
-
-        // Detect if we are in a deadlock state
-        return !deadlock_detect(temp_state, i, j);
-      }
-    }
+  if (temp_state->requestr(i, j, k)) {
+    ba::state *tmp = new ba::state(*temp_state);
+    tmp->aquire(i, j, k);
+    return !deadlock_detect(tmp);
   }
   return false;
 }
 
-ba::state* banker_algorithm::release(int i, int j, int k) {
-  return current_state;
+bool banker_algorithm::valid_release(ba::state *s, int i, int j, int k) {
+  return ((i <= s->allocation[k][j]) && (i >= 0));
 }

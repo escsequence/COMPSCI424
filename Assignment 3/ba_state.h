@@ -84,7 +84,7 @@ namespace ba {
           for (int im = 0; im < m; ++im) {
             max[in][im] = DEFAULT_UNDEFINED_VALUE;
             allocation[in][im] = DEFAULT_UNDEFINED_VALUE;
-            request[in][im] = DEFAULT_UNDEFINED_VALUE;
+            request[in][im] = 0;
           }
         }
 
@@ -108,6 +108,40 @@ namespace ba {
       int potential(int r, int p) {
         return max[r][p] - allocation[r][p];
       }
+
+      bool requestr(int i, int j, int k) {
+        if (i >= 0 && (i <= this->max[k][j])) {
+          if (j >= 0 && (j <= this->m-1)) { // Resource
+            if (k >= 0 && (k <= this->n-1)) { // Process
+              if (this->request[k][j] == INT_MIN) {
+                this->request[k][j] = i;
+              } else {
+                this->request[k][j]+= i;
+              }
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+
+      void aquire(int i, int j, int k) {
+        this->available[j] -= i;
+
+        if (this->allocation[k][j] == INT_MIN) {
+          this->allocation[k][j] = i;
+        } else {
+          this->allocation[k][j] += i;
+        }
+
+        this->request[k][j] -= i;
+      }
+
+      void release(int i, int j, int k) {
+        this->available[j] += i;
+        this->allocation[k][j] -= i;
+      }
+
   };
 }
 

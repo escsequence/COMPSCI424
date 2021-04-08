@@ -5,6 +5,8 @@
 #include <sstream>
 #include <string>
 #include <climits>
+#include <vector>
+#include <cstring>
 #include "arg.h"
 #include "ba.h"
 
@@ -38,9 +40,13 @@ private:
 
   void print_status();
 
-  bool deadlock_detect(ba::state *state, int i, int j);
-  bool request(int i, int j, int k);
-  ba::state* release(int i, int j, int k);
+  bool deadlock_detect(ba::state *state);
+  void dl_safe(bool marked[], ba::state *state, std::vector<int> safe);
+  bool dl_available(ba::state *state, int process);
+  int dl_tmp_total;
+
+  bool request(ba::state *s, int i, int j, int k);
+  bool valid_release(ba::state *s, int i, int j, int k);
 
   bool valid(int &val);
 
