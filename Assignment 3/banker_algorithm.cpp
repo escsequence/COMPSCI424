@@ -1,12 +1,19 @@
 #include "banker_algorithm.h"
 std::mutex mtx;
 
+/**
+ * Random method to randomize junk.
+ * Uses a distrubtion generator.
+ */
 int random(int min, int max) {
     thread_local std::mt19937 generator(std::random_device{}());
     std::uniform_int_distribution<int> distribution(min, max);
     return distribution(generator);
 }
 
+/**
+ * Initalization of all the processes, called in the constructor.
+ */
 void banker_algorithm::init() {
 
   // Random seed
@@ -35,6 +42,9 @@ void banker_algorithm::init() {
   std::cout << std::endl;
 }
 
+/**
+ * Loads the configuration file in our config object.
+ */
 void banker_algorithm::init_load_config() {
   std::ifstream config_file;
   std::string file_name = arg_handle.get_file();
@@ -51,7 +61,7 @@ void banker_algorithm::init_load_config() {
 
     while(std::getline(config_file, line)) {
       std::vector<std::string> parsed_elements = split(line, ' ');
-      
+
       if (!n_set || !m_set) {
         if (parsed_elements.size() == 2) {
           if (parsed_elements[1] == "processes") {
@@ -97,6 +107,9 @@ void banker_algorithm::init_load_config() {
   }
 }
 
+/**
+ * Parses the configuration data we loaded into our current_state.
+ */
 void banker_algorithm::init_parse_config() {
   // Loop through all the config stuff
   int mp = 0;
@@ -131,10 +144,19 @@ void banker_algorithm::init_parse_config() {
   }
 }
 
+/**
+ * Validates the configuration data loaded from the file.
+ * @return bool If the configuration information is valid.
+ */
 bool banker_algorithm::init_validate_config() {
   return validate_state(this->current_state);
 }
 
+/**
+ * Validates the state specified.
+ * @param s A state of the bankers algorithm.
+ * @return bool State is valid, allocation isn't greater than the maximum.
+ */
 bool banker_algorithm::validate_state(ba::state *s) {
   // 1. Allocation <= Maximum
   for (int in = 0; in < n; ++in) {
@@ -161,10 +183,19 @@ bool banker_algorithm::validate_state(ba::state *s) {
   return true;
 }
 
+/**
+ * Determines whether the value passed in is a array data information (NOT DEFAULT_UNDEFINED_VALUE).
+ * @param &val Values to analyze.
+ * @return bool If the value is NOT DEFAULT_UNDEFINED_VALUE
+ */
 bool banker_algorithm::valid(int &val) {
   return (val != DEFAULT_UNDEFINED_VALUE);
 }
 
+/**
+ * Prints the state spcified.
+ * @param s A state to print out to the console.
+ */
 void banker_algorithm::print_state(ba::state *s) {
   // Available
   std::cout << "Available = " << std::endl << "[";
@@ -246,10 +277,17 @@ void banker_algorithm::print_state(ba::state *s) {
   std::cout << std::endl;
 }
 
+/**
+ * Calls print_state on our current_state. (Prints our current state)
+ */
 void banker_algorithm::print_status() {
   print_state(current_state);
 }
 
+/**
+ * Runs either manual or automatic mode, engages the bankers algorithm program.
+ * @return int Return value for the main method, successful run for 0.
+ */
 int banker_algorithm::run() {
   // Invalid configuration detected.
   if (!config_valid)
@@ -268,6 +306,10 @@ int banker_algorithm::run() {
   }
 }
 
+/**
+ * Our run method for the manual mode of operation.
+ * @return int Return value for the main method, successful run for 0.
+ */
 int banker_algorithm::run_manual() {
 
   manual_process_inputs = true;
@@ -329,6 +371,10 @@ int banker_algorithm::run_manual() {
   return 0;
 }
 
+/**
+ * Engages the auto thread execution for the automatic mode.
+ * @param int Current process/thread being run.
+ */
 void banker_algorithm::auto_thread_run(int thread_id) {
   int random_command_count = 3; // Amount of requests / releases
   int current_command_num = 0; // Current set of actions we are on
@@ -350,7 +396,7 @@ void banker_algorithm::auto_thread_run(int thread_id) {
 
       // Determine a random value for our action
       int j = random(0, current_state->m - 1);
-      int k = random(0, current_state->n - 1);
+      int k = thread_id;
       int i = random(0, current_state->available[j]);
 
       // Assign the values of our random values
@@ -405,7 +451,10 @@ void banker_algorithm::auto_thread_run(int thread_id) {
   }
 }
 
-
+/**
+ * Our run method for the automatic mode of operation.
+ * @return int Return value for the main method, successful run for 0.
+ */
 int banker_algorithm::run_auto() {
   // Yet to be developed.
   int process_count = current_state->n;
@@ -436,37 +485,57 @@ bool banker_algorithm::dl_available(ba::state *state, int process) {
 void banker_algorithm::dl_safe(bool marked[], ba::state *state, std::vector<int> safe) {
   // Loop through all the processes
   for (int in = 0; in < state->n; ++in) {
-    //std::cout << "marked[" << in << "] = " << marked[in] << std::endl;
     if (!marked[in] && dl_available(state, in)) {
 
+      // Mark the process
       marked[in] = true;
 
+      // Loop through our resources and change the availability based on the allocations
       for (int im = 0; im < state->m; ++im)
         state->available[im] += state->allocation[in][im];
 
+      // Push the process back to our safe vector
       safe.push_back(in);
+
+      // Call the same function
       dl_safe(marked, state, safe);
+
+      // Pop the safe vector
       safe.pop_back();
 
+      // Now mark it as not safe
       marked[in] = false;
 
+      // Loop through our resources and change the availability based on the allocations
       for (int im = 0; im < state->m; ++im)
         state->available[im] -= state->allocation[in][im];
     }
   }
-  //std::cout << "Safe size = " << safe.size() << std::endl;
-  if (safe.size() == this->m) {
-    dl_tmp_total++;
-  }
 
+  // Check to see if we have an safe paths
+  if (safe.size() == this->m) {
+
+    // If so, then our deadlock tmp total gets incrementedd
+    dl_tmp_total++;
+
+  }
 }
 
 bool banker_algorithm::deadlock_detect(ba::state *state) {
+  // Create a vector of safe processes
   std::vector<int> safe;
+
+  // Set our tmp total to 0
   this->dl_tmp_total = 0;
+
+  // Create a bool array
   bool marked[state->n];
   memset(marked, false, sizeof(marked));
+
+  // Run our function to check if the deadload is safe
   dl_safe(marked, state, safe);
+
+  // Return if there are still 0 safe paths
   return dl_tmp_total == 0;
 }
 
@@ -481,6 +550,14 @@ bool banker_algorithm::request(ba::state *s, int i, int j, int k) {
   return false;
 }
 
+/**
+ * If the data passed in is a valid release
+ * @param *s The state to find a deadlock in.
+ * @param i Resource Amount.
+ * @param j Resource id.
+ * @param k Process id.
+ * @return bool If the values are within the allocation data.
+ */
 bool banker_algorithm::valid_release(ba::state *s, int i, int j, int k) {
   return ((i <= s->allocation[k][j]) && (i >= 0));
 }

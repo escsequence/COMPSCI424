@@ -1,1 +1,7 @@
+# BUILD
 g++ assignment3.cpp banker_algorithm.cpp -o a3.exe
+
+# RUN
+./a3.exe manual file.txt
+./a3.exe auto file.txt
+# etc
