@@ -1,6 +1,16 @@
 #include "banker_algorithm.h"
+std::mutex mtx;
+
+int random(int min, int max) {
+    thread_local std::mt19937 generator(std::random_device{}());
+    std::uniform_int_distribution<int> distribution(min, max);
+    return distribution(generator);
+}
 
 void banker_algorithm::init() {
+
+  // Random seed
+  srand(time(NULL));
 
   // Load the configuration so we can set the n and m variables
   init_load_config();
@@ -285,12 +295,14 @@ int banker_algorithm::run_manual() {
     //ba::state* tmp_state = NULL;
     switch (current.action) {
       case ba::CA_REQUEST:
-        //tmp_state = request(current.i, current.j, current.k);
-
         if (request(current_state, current.i, current.j, current.k)) {
           ba::log(ba::LF_REQUEST, arg_handle.get_mode(), current, true);
-          temp_state->aquire(current.i, current.j, current.k);
-          current_state = temp_state;
+          //temp_state->aquire(current.i, current.j, current.k);
+          if (current_state->requestr(current.i, current.j, current.k)) {
+            current_state->aquire(current.i, current.j, current.k);
+          } else {
+            ba::log(ba::LF_REQUEST, arg_handle.get_mode(), current, false);
+          }
         } else {
           ba::log(ba::LF_REQUEST, arg_handle.get_mode(), current, false);
         }
@@ -321,10 +333,97 @@ int banker_algorithm::run_manual() {
   return 0;
 }
 
+void banker_algorithm::auto_thread_run(int thread_id) {
+  int random_command_count = 3; // Amount of requests / releases
+  int current_command_num = 0; // Current set of actions we are on
+
+  // While there are less commands then we want
+  while(current_command_num < random_command_count) {
+
+    // Current command we are working on
+    ba::command current_command;
+
+    // Was the request generated?
+    bool request_generated = false;
+
+    // While the request hasn't been successfully generated yet.
+    while(!request_generated) {
+
+      // Lock the mutex
+      mtx.lock();
+
+      // Determine a random value for our action
+      int j = random(0, current_state->m - 1);
+      int k = random(0, current_state->n - 1);
+      int i = random(0, current_state->available[j]);
+
+      // Assign the values of our random values
+      current_command.j = j;
+      current_command.k = k;
+      current_command.i = i;
+
+      // Try to request
+      if (request(current_state, i, j, k)) {
+        // Went through, now try and assign it to our current state.
+        if (current_state->requestr(current_command.i, current_command.j, current_command.k)) {
+          current_state->aquire(current_command.i, current_command.j, current_command.k);
+          ba::log(ba::LF_REQUEST, arg_handle.get_mode(), current_command, true, thread_id);
+          request_generated = true;
+          mtx.unlock();
+        } else {
+          // Error.
+          ba::log(ba::LF_REQUEST, arg_handle.get_mode(), current_command, false, thread_id);
+          int wait_before_retry = random(1000, 3000);
+          //std::cout << "Thread " << thread_id << " - Sleeping for " << wait_before_retry << std::endl;
+          mtx.unlock();
+          std::this_thread::sleep_for(std::chrono::milliseconds(wait_before_retry));
+        }
+      } else {
+        ba::log(ba::LF_REQUEST, arg_handle.get_mode(), current_command, false, thread_id);
+        int wait_before_retry = random(1000, 3000);
+        //std::cout << "Thread " << thread_id << " - Sleeping for " << wait_before_retry << std::endl;
+        mtx.unlock();
+        std::this_thread::sleep_for(std::chrono::milliseconds(wait_before_retry));
+      }
+    }
+
+    mtx.lock();
+    int wait_before_release = random(1000, 3000);
+    mtx.unlock();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(wait_before_release));
+
+
+    mtx.lock();
+    if (valid_release(current_state, current_command.i, current_command.j, current_command.k)) {
+      // Yep, so now release it.
+      current_state->release(current_command.i, current_command.j, current_command.k);
+      ba::log(ba::LF_RELEASE, arg_handle.get_mode(), current_command, true, thread_id);
+    } else {
+      ba::log(ba::LF_RELEASE, arg_handle.get_mode(), current_command, false, thread_id);
+    }
+    mtx.unlock();
+
+    // Increment current command value
+    current_command_num++;
+  }
+}
 
 
 int banker_algorithm::run_auto() {
   // Yet to be developed.
+  int process_count = current_state->n;
+  std::thread process_thread[process_count];
+  //
+  for (int i = 0; i < process_count; ++i) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    process_thread[i] = std::thread(&banker_algorithm::auto_thread_run, this, i);
+  }
+
+  for (int i = 0; i < process_count; ++i) {
+    process_thread[i].join();
+  }
+
   return 0;
 }
 
@@ -366,24 +465,20 @@ void banker_algorithm::dl_safe(bool marked[], ba::state *state, std::vector<int>
 
 }
 
-
-
 bool banker_algorithm::deadlock_detect(ba::state *state) {
   std::vector<int> safe;
   this->dl_tmp_total = 0;
   bool marked[state->n];
   memset(marked, false, sizeof(marked));
   dl_safe(marked, state, safe);
-  //std::cout << "dl_tmp_total = " << dl_tmp_total << std::endl;
   return dl_tmp_total == 0;
 }
 
 bool banker_algorithm::request(ba::state *s, int i, int j, int k) {
   // We mirror our state into a temporary state
-  temp_state = new ba::state(*current_state);
+  ba::state *tmp = new ba::state(*current_state);
 
-  if (temp_state->requestr(i, j, k)) {
-    ba::state *tmp = new ba::state(*temp_state);
+  if (tmp->requestr(i, j, k)) {
     tmp->aquire(i, j, k);
     return !deadlock_detect(tmp);
   }

@@ -1,0 +1,1 @@
+g++ assignment3.cpp banker_algorithm.cpp -o a3.exe

@@ -7,6 +7,9 @@
 #include <climits>
 #include <vector>
 #include <cstring>
+#include <chrono>
+#include <thread>
+#include <mutex>
 #include "arg.h"
 #include "ba.h"
 
@@ -54,6 +57,7 @@ private:
   bool manual_process_inputs;
 
   // Auto
+  void auto_thread_run(int thread_id);
 public:
   banker_algorithm(arg a) {
     // Arguments passed in from the main method

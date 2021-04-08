@@ -11,6 +11,7 @@ namespace ba {
   };
 
   static void log(log_flag flag, mode m, command cmd, bool success, int process = -1) {
+    //mtx.lock();
     if (m == BM_AUTO) {
       std::cout << "[Thread " << process << "]: ";
     }
@@ -37,9 +38,9 @@ namespace ba {
         std::cout << std::endl;
 
         break;
-
-
     }
+    //mtx.unlock();
   }
+
 }
 #endif

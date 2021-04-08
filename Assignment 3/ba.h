@@ -8,6 +8,14 @@
 #include <functional>
 #include <cctype>
 #include <locale>
+#include <mutex>
+#include <random>
+
+// static int random(int min, int max) {
+//   static thread_local std::mt19937 generator;
+//   std::uniform_int_distribution<int> distribution(min,max);
+//   return distribution(generator);
+// }
 
 // Help: https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
 // trim from start
