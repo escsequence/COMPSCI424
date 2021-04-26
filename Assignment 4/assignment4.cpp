@@ -5,7 +5,7 @@
  * assignment4.cpp
  * This is the main method cpp file to run for the assignment.
 ********************************************************/
-#include <iostream>
+#include "replacement_algorithm.h"
 
 const int PAGE_FRAME_LIMIT = 6; // Hard limit
 

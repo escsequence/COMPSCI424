@@ -2,13 +2,10 @@
 #define RA_FIFO_H
 #include "ra.h"
 namespace ra {
-  class fifo : protected algorithm {
+  class fifo_algorithm : protected algorithm {
     public:
-      void init() {
-
-      }
       std::string run() {
-        
+        return "Test!";
       }
   };
 }

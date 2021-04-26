@@ -12,11 +12,25 @@ namespace ra {
     protected:
       int** frame;
       // These are two values that max u pthe frame array
-      int frame_size;
+      int frame_length;
       int time_length;
 
+      int* rs;
     public:
-      virtual void init() = 0;
+      void init(int f, int t) {
+        this->frame_length = f;
+        this->time_length = t;
+
+        rs = new int[t];
+        frame = new int*[f];
+        for (int i = 0; i < f; ++i) {
+          frame[i] = new int[t];
+        }
+      }
+      // Fil reference string
+      void fill(std::string reference) {
+        // Go through each char and convert
+      }
       virtual std::string run() = 0;
   };
 }
