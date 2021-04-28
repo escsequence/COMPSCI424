@@ -7,8 +7,6 @@
 ********************************************************/
 #include "replacement_algorithm.h"
 
-const int PAGE_FRAME_LIMIT = 6; // Hard limit
-
 int main(int argc, char** argv) {
   std::cout << "##########################################" << std::endl;
   std::cout << "####            Assignment 4          ####" << std::endl;
@@ -16,6 +14,9 @@ int main(int argc, char** argv) {
   std::cout << "####    COMPSCI424 - James Johnston   ####" << std::endl;
   std::cout << "##########################################" << std::endl;
 
-  // Return 0 to end the program
-  return 0;
+  // Create an instance of the program
+  ra_program prg;
+
+  // Return the program return value
+  return prg.run();
 }
