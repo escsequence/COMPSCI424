@@ -1,100 +1,43 @@
+/**
+ * @file ra_lru.h
+ * @author James Johnston
+ * @description This is the implemention of lowest recently used page replacement algorithm for assignment 4.
+ */
 #ifndef RA_LRU_H
 #define RA_LRU_H
 #include "ra.h"
-#include <list>
-#include <unordered_map>
-#include <queue>
+#include "lru_queue.h"
 namespace ra {
-  class lru_cache {
-    private:
-      std::list<int> keys;
-      std::unordered_map<int, std::list<int>::iterator> map;
-      int size;
-    public:
-      lru_cache(int v) {
-        size = v;
-      }
 
-      void add(int val) {
-        if (map.find(val) == map.end()) {
-          if (keys.size() == size) {
-            int last = keys.back();
-            keys.pop_back();
-            map.erase(last);
-          }
-        } else {
-          keys.erase(map[val]);
-        }
-
-        keys.push_front(val);
-        map[val] = keys.begin();
-      }
-
-      void display() {
-        for (auto it = keys.begin(); it != keys.end();
-             it++)
-            std::cout << (*it) << " ";
-
-        std::cout << std::endl;
-      }
-
-      int get_size() {
-        int count = 0;
-        for (auto it = keys.begin(); it != keys.end(); it++) {
-          count++;
-        }
-        return count;
-      }
-
-      int* get_array() {
-        int* m = new int[size];
-        int pos = 0;
-        for (auto it = keys.begin(); it != keys.end(); it++) {
-          m[pos] = (*it);
-          pos++;
-        }
-        return m;
-      }
-
-      int head() {
-        int head;
-        for (auto it = keys.begin(); it != keys.end(); it++) {
-          head = (*it);
-        }
-        return head;
-      }
-
-
-
-  };
   class lru_algorithm : protected algorithm {
-  private:
-    // If a value is contained in an int array
-    bool contains(int val, int arr[], int size) {
-      for(int i = 0; i < size; ++i) {
-        //std::cout << "arr[i]=" << arr[i] << " == " << val << std::endl;
-        if (arr[i] == val)
-          return true;
-      }
-      return false;
-    }
-
     public:
+      /**
+       * Runs our algorithm.
+       *
+       * @return results of the run - amount of page faults that occured
+       */
       std::string run() {
 
+        // Create our returning string holder
         std::string ret_val = "";
+
+        // Hold how many page faults occured
         int pg_faults = 0;
+
+        // Hold a temporary new frame buffer position
         int new_frame_pos = 0;
 
-        lru_cache cache = lru_cache(frame_length);
+        // Create our queue of least recently used items
+        lru_queue queue = lru_queue(frame_length);
 
+        // We start emulating our time
         for (int i = 0; i < time_length; ++i) {
 
           // Get our current value from our rs (reference string)
           int current_rs = rs[i];
 
           // Looks in our cache, to see if a frame exists.
-          bool found_in_frame = contains(current_rs, cache.get_array(), cache.get_size());
+          bool found_in_frame = contains(current_rs, queue.get_array(), queue.get_size());
 
           // It doesn't exist, so a page fault occurs.
           if (!found_in_frame) {
@@ -103,7 +46,7 @@ namespace ra {
             int frame_to_replace = -1;
 
             // Check to see if there are any open
-            if (cache.get_size() < frame_length) {
+            if (queue.get_size() < frame_length) {
 
               // The frame we are replacing is one that doesn't exist yet.
               frame_to_replace = new_frame_pos;
@@ -112,7 +55,7 @@ namespace ra {
             } else {
               // Nope, so we replace the last one
               // Get the page that is falling off the cache.
-              int lru_pg = cache.head();
+              int lru_pg = queue.head();
 
               // Find the array location in our frame buffer
               for (int jx = 0; jx < frame_length; ++jx) {
@@ -139,12 +82,20 @@ namespace ra {
           }
 
           // No matter what we are adding in the value.
-          cache.add(current_rs);
+          queue.add(current_rs);
         }
 
         // Output how many page faults and the page fault hits/no page faulting.
         return ret_val + " | Page Faults = " + std::to_string(pg_faults);
       }
+
+      /**
+       * LRU (Lowest recently used) algorithm constructor
+       *
+       * @param frame_len Frame length, used to create our frame array and be referenced from frame_length
+       * @param time_Len Time Length, used to create our frame array and be referenced from time_length
+       * @param ref Reference string value (RS)
+       */
       lru_algorithm(int f, int t, int ref[]) {
         init(f, t);
         fill(ref);

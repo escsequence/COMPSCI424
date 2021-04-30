@@ -1,0 +1,4 @@
+g++ assignment4.cpp replacement_algorithm.cpp lru_queue.cpp -o A4
+
+.\A4 (bash\linux\unix)
+.\A4.exe (windows)

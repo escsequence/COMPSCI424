@@ -1,3 +1,8 @@
+/**
+ * @file ra_opt.h
+ * @author James Johnston
+ * @description This is the implemention of optimal page replacement algorithm for assignment 4.
+ */
 #ifndef RA_OPT_H
 #define RA_OPT_H
 #include "ra.h"
@@ -6,11 +11,18 @@
 namespace ra {
   class opt_algorithm : protected algorithm {
   private:
+    /**
+     * Find the furthest away item in the rs that also exists in the frame buffer.
+     *
+     * @param time Time to start looking, goes until time_length
+     * @return the value of the furthest away reference number, if an item in the frame doesn't re-occur then it will be returned to get re-used.
+     */
     int find_furthest_away(int time){
 
+      // Create a integer distance map
       std::map<int, int> distance_map;
 
-      // Create our map with items that CAN be replaced.
+      // Create our map with items that CAN be replaced, as in they exist in our frame at this point in time.
       for (int i = 0; i < frame_length; ++i) {
         int current_frame = this->frame[time][i];
         if (distance_map.find(current_frame) ==  distance_map.end()) {
@@ -30,15 +42,22 @@ namespace ra {
         }
       }
 
+      // Create a temporary value that holds the furthest value away - starts with the smallest value
       int furthest_away = INT_MIN;
+
+      // Hold a value (last_rs) as a temporary one.
       int furthest_away_val = last_rs;
-      // // We want the LEAST and the furthest away
+
+      // We want the LEAST and the furthest away, so we iterate over all the map items
       for (std::map<int, int>::iterator it = distance_map.begin(); it != distance_map.end(); it++)
       {
-          // First lets check to see if there are items that WONT be addressed later
+          // First lets check to see if there are items that WONT be addressed later so they still have 0 as their value
           if (it->second == 0) {
+            // Just return it, nothing else to do.
             return it->first;
+
           } else {
+            // Item will be addressed later
             // Next, we want an item that exists in the RS and the frame that will be addressed the furthest away.
             if (it->second > furthest_away) {
               furthest_away = it->second;
@@ -47,19 +66,16 @@ namespace ra {
           }
       }
 
+      // Return the furthest value away from the origin
       return furthest_away_val;
     }
 
-    // If a value is contained in an int array
-    bool contains(int val, int arr[], int size) {
-      for(int i = 0; i < size; ++i) {
-        if (arr[i] == val)
-          return true;
-      }
-      return false;
-    }
-
     public:
+      /**
+       * Runs our algorithm.
+       *
+       * @return results of the run - amount of page faults that occured
+       */
       std::string run() {
         std::string ret_val = "";
         int pg_faults = 0;
@@ -92,70 +108,20 @@ namespace ra {
             ret_val += "X ";
             pg_faults++;
           }
-
-
-
-
-
-
-
-
-
-
-
-
         }
-          //std::cout << "!! t = " << i << " | v = " << v << std::endl;
-
-          //cache.display();
-
-          // Looks in our cache, to see if a frame exists.
-        //   bool found_in_frame = contains(v, cache.get_array(), cache.get_size());
-        //
-        //   // It doesn't exist, so a page fault occurs.
-        //   if (!found_in_frame) {
-        //     //std:: cout << "## PAGE FAULT!" << std::endl;
-        //     int frame_to_replace = -1;
-        //     //std::cout << "DIDNT FIND IN FRAME!" << std::endl;
-        //     if (cache.get_size() < frame_length) {
-        //       //std::cout << "SIZE!" << std::endl;
-        //       frame[i][new_frame_pos] = v;
-        //       frame_to_replace = new_frame_pos;
-        //       new_frame_pos++;
-        //     } else {
-        //       // Get the page that is falling off the cache.
-        //       int lru_pg = cache.head();
-        //
-        //       // Find the array location in our frame buffer
-        //       for (int jx = 0; jx < frame_length; ++jx) {
-        //         if (frame[i][jx] == lru_pg) {
-        //           frame_to_replace = jx; //found
-        //         }
-        //       }
-        //     }
-        //
-        //     // Update frame
-        //     frame[i][frame_to_replace] = v;
-        //
-        //     // Update the future ones too, on the current frame.
-        //     for (int ix = i; ix < time_length; ++ix)
-        //       frame[ix][frame_to_replace] = v;
-        //
-        //     // Increment amount of page faults
-        //     ret_val += "X ";
-        //     pg_faults++;
-        //
-        //   } else {
-        //     ret_val += "O ";
-        //   }
-        //
-        //   cache.add(v);
-        // }
 
         return ret_val + " | Page Faults = " + std::to_string(pg_faults);
       }
-      opt_algorithm(int f, int t, int ref[]) {
-        init(f, t);
+
+      /**
+       * OPTIMAL algorithm constructor
+       *
+       * @param frame_len Frame length, used to create our frame array and be referenced from frame_length
+       * @param time_Len Time Length, used to create our frame array and be referenced from time_length
+       * @param ref Reference string value (RS)
+       */
+      opt_algorithm(int frame_len, int time_len, int ref[]) {
+        init(frame_len, time_len);
         fill(ref);
       }
   };

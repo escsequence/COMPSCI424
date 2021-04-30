@@ -1,12 +1,31 @@
 #include "replacement_algorithm.h"
 
+// Hard limits set by requirements of the assignment
 const int PAGE_FRAME_LIMIT = 6;
 const int REFERENCE_LENGTH_LIMIT = 20;
 
+/**
+ * Returns a random value.
+ * Make sure to call srand(value) ahead of time!
+ *
+ * @param min Minimum starting value
+ * @param max Maximum ending value
+ * @return Random value
+ */
 int ra_program::random(int min, int max) {
     return min + (rand() % static_cast<int>(max - min + 1));
 }
 
+/**
+ * Returns an array of size provided, each value inside the array is random (min-max).
+ * Make sure to call srand(value) ahead of time!
+ *
+ * ex: random_array(1, 2, 5) => {1, 1, 2, 2, 1}
+ *
+ * @param min Minimum starting value for each item
+ * @param max Maximum ending value for each item
+ * @return Array with random values
+ */
 int* ra_program::random_array(int min, int max, int size) {
   int *arr = new int[size];
   for (int i = 0; i < size; ++i)
@@ -14,6 +33,16 @@ int* ra_program::random_array(int min, int max, int size) {
   return arr;
 }
 
+/**
+ * Converts an int array to a string.
+ *
+ * ex: int v[] = {1, 1, 2, 2, 1};
+ * ex: int_array_to_string(v, 5) => "11221"
+ *
+ * @param arr Integer array to convert
+ * @param size Size of the integer array to convert
+ * @return String conversion of the integer array
+ */
 std::string ra_program::int_array_to_string(int arr[], int size) {
   std::string full_buffer = "";
   char buffer[size];
@@ -25,6 +54,11 @@ std::string ra_program::int_array_to_string(int arr[], int size) {
   return full_buffer;
 }
 
+/**
+ * Runs the program.
+ *
+ * @return Return code for the program, if successful or not
+ */
 int ra_program::run() {
   // Ask the user to enter the number of page frames in the system. If the number of frames is not between 1 and 6 (inclusive), ask them to try again, and give them enough information so that they know what to do.
 
@@ -66,8 +100,5 @@ int ra_program::run() {
   ra::opt_algorithm opta = ra::opt_algorithm(page_frames_from_user, REFERENCE_LENGTH_LIMIT, reference_array);
   std::cout << "| OPT results  = " << opta.run() << std::endl << std::endl;
 
-
-
-  //std::cout << "Test array = " << int_array_to_string(random_array(0, 1, 5), 5) << std::endl;
   return 0;
 }
