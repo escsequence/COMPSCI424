@@ -5,6 +5,7 @@
 #include "ra.h"
 #include "ra_fifo.h"
 #include "ra_lru.h"
+#include "ra_opt.h"
 class ra_program {
   private:
     // Randomization functionality

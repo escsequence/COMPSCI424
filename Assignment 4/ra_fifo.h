@@ -5,28 +5,31 @@ namespace ra {
   class fifo_algorithm : protected algorithm {
     public:
       std::string run() {
+
         std::string ret_val = "";
         int pg_faults = 0;
-        int fifo_pointer = 0; // oldest starts at 0
-        //return "Test!";
+        int fifo_pointer = 0;
+
         for (int i = 0; i < time_length; ++i) {
-          int v = rs[i]; // Page #
-          //std::cout << "!! t = " << i << " | v = " << v << " | pointer = " << fifo_pointer << std::endl;
-          bool found_in_frame = false;
-          for (int j = 0; j < frame_length; ++j) {
-            found_in_frame = (frame[i][j] == v) ? true : found_in_frame;
-            //std::cout << "frame[" << i << "][" << j << "] = " << frame[i][j] << std::endl;
-          }
 
-          if (!found_in_frame) {
-            //std:: cout << "## PAGE FAULT!" << std::endl;
+          // Check if the rs we are currently on is resident in a given frame.
+          if (rs_is_resident(i)) {
+            // Yep. Keep going on.
+            ret_val += "O ";
 
-            // Page fault
-            frame[i][fifo_pointer] = v; //update the frame
+          } else {
+            // Nope, so we call a page fault.
+
+            // Get our current value from our rs (reference string)
+            int current_rs = rs[i];
+
+
+            // Update frames for a position
+            frame[i][fifo_pointer] = current_rs;
 
             // Update the future ones too.
             for (int ix = i; ix < time_length; ++ix)
-              frame[ix][fifo_pointer] = v;
+              frame[ix][fifo_pointer] = current_rs;
 
             // Increment location
             fifo_pointer++;
@@ -35,11 +38,11 @@ namespace ra {
             if (fifo_pointer >= frame_length)
               fifo_pointer = 0;
 
+            // Mark an X since this is a page fault
             ret_val += "X ";
-            pg_faults++;
 
-          } else {
-            ret_val += "O ";
+            // Increment our page fault counter.
+            pg_faults++;
           }
         }
 

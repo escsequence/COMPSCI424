@@ -1,0 +1,10 @@
+##########################################
+####            Assignment 4          ####
+####    COMPSCI424 - James Johnston   ####
+##########################################
+Enter amount of page frames in the system = 5
+| Random generated reference string = 08564381591574549367
+
+| FIFO results = X X X X X X O X O X O X X X O O O X X O  | Page Faults = 13
+| LRU results  = X X X X X X O X X X O O X X O O O X X X  | Page Faults = 14
+| OPT results  = X X X X X X O X O X O O X O O O O O X O  | Page Faults = 10

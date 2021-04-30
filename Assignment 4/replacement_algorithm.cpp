@@ -41,20 +41,32 @@ int ra_program::run() {
 
   // Generate and then display a random reference string of length 20, whose page numbers range from 0 to 9.
   int* reference_array = random_array(0, 9, REFERENCE_LENGTH_LIMIT);
+
+  // Test case 1
+  //int reference_array[] = {0, 1, 4, 0, 2, 3, 0, 1, 0, 2, 3, 4, 2, 3, 0, 4, 2, 1, 3, 2};
+
+  // Test case 2
+  //int reference_array[] = {0, 8, 5, 6, 4, 3, 8, 1, 5, 9, 1, 5, 6, 4, 5, 4, 9, 3, 6, 7};
+
+  // Test case 3
+  //int reference_array[] = {0, 8, 5, 6, 4, 3, 8, 1, 5, 9, 1, 5, 7, 4, 5, 4, 9, 3, 6, 7};
+
   std::string reference_string = int_array_to_string(reference_array, REFERENCE_LENGTH_LIMIT);
-  std::cout << "# Random generated reference string = " << reference_string << std::endl;
+  std::cout << "| Random generated reference string = " << reference_string << std::endl << std::endl;
 
   // Display the number of page faults produced by using FIFO page replacement with this reference string.
   ra::fifo_algorithm fa = ra::fifo_algorithm(page_frames_from_user, REFERENCE_LENGTH_LIMIT, reference_array);
-  std::cout << "| FIFO results = " << fa.run() << std::endl << std::endl;
+  std::cout << "| FIFO results = " << fa.run() << std::endl;
 
   // Display the number of page faults produced by using LRU page replacement with this reference string.
   ra::lru_algorithm lrua = ra::lru_algorithm(page_frames_from_user, REFERENCE_LENGTH_LIMIT, reference_array);
-  std::cout << "| LRU results = " << lrua.run() << std::endl << std::endl;
-
-
+  std::cout << "| LRU results  = " << lrua.run() << std::endl;
 
   // Display the number of page faults produced by using optimal (OPT) page replacement with this reference string.
+  ra::opt_algorithm opta = ra::opt_algorithm(page_frames_from_user, REFERENCE_LENGTH_LIMIT, reference_array);
+  std::cout << "| OPT results  = " << opta.run() << std::endl << std::endl;
+
+
 
   //std::cout << "Test array = " << int_array_to_string(random_array(0, 1, 5), 5) << std::endl;
   return 0;

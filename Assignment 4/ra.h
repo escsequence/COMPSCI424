@@ -8,6 +8,7 @@
 #define RA_H
 #include <iostream>
 namespace ra {
+  const bool VERBOSE_DEBUG = true;
   class algorithm {
     protected:
 
@@ -43,6 +44,33 @@ namespace ra {
       // Fil reference string
       void fill(int c[]) {
         rs = c;
+      }
+
+      bool rs_is_resident(int time) {
+        int current_rs = rs[time];
+        return value_is_resident(current_rs, time);
+      }
+
+      bool value_is_resident(int v, int time) {
+        for (int i = 0; i < frame_length; ++i) {
+          if (frame[time][i] == v)
+            return true;
+        }
+        return false;
+      }
+
+      void update_residency(int val, int time, int frame) {
+        for (int i = time; i < time_length; ++i) {
+          //frame[time][i] = val;
+          this->frame[i][frame] = val;
+        }
+      }
+
+      int rs_residency(int time, int rs) {
+        for (int i = 0; i < frame_length; ++i)
+          if (frame[time][i] == rs)
+            return i;
+        return -1;
       }
       virtual std::string run() = 0;
   };

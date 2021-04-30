@@ -5,7 +5,6 @@
 #include <unordered_map>
 #include <queue>
 namespace ra {
-  //https://www.geeksforgeeks.org/lru-cache-implementation/
   class lru_cache {
     private:
       std::list<int> keys;
@@ -82,31 +81,36 @@ namespace ra {
 
     public:
       std::string run() {
+
         std::string ret_val = "";
         int pg_faults = 0;
         int new_frame_pos = 0;
 
         lru_cache cache = lru_cache(frame_length);
-        for (int i = 0; i < time_length; ++i) {
-          int v = rs[i]; // Page #
-          //std::cout << "!! t = " << i << " | v = " << v << std::endl;
 
-          //cache.display();
+        for (int i = 0; i < time_length; ++i) {
+
+          // Get our current value from our rs (reference string)
+          int current_rs = rs[i];
 
           // Looks in our cache, to see if a frame exists.
-          bool found_in_frame = contains(v, cache.get_array(), cache.get_size());
+          bool found_in_frame = contains(current_rs, cache.get_array(), cache.get_size());
 
           // It doesn't exist, so a page fault occurs.
           if (!found_in_frame) {
-            //std:: cout << "## PAGE FAULT!" << std::endl;
+
+            // We want to identify what frame we are replacing
             int frame_to_replace = -1;
-            //std::cout << "DIDNT FIND IN FRAME!" << std::endl;
+
+            // Check to see if there are any open
             if (cache.get_size() < frame_length) {
-              //std::cout << "SIZE!" << std::endl;
-              frame[i][new_frame_pos] = v;
+
+              // The frame we are replacing is one that doesn't exist yet.
               frame_to_replace = new_frame_pos;
               new_frame_pos++;
+
             } else {
+              // Nope, so we replace the last one
               // Get the page that is falling off the cache.
               int lru_pg = cache.head();
 
@@ -114,16 +118,17 @@ namespace ra {
               for (int jx = 0; jx < frame_length; ++jx) {
                 if (frame[i][jx] == lru_pg) {
                   frame_to_replace = jx; //found
+                  break;
                 }
               }
             }
 
             // Update frame
-            frame[i][frame_to_replace] = v;
+            frame[i][frame_to_replace] = current_rs;
 
             // Update the future ones too, on the current frame.
             for (int ix = i; ix < time_length; ++ix)
-              frame[ix][frame_to_replace] = v;
+              frame[ix][frame_to_replace] = current_rs;
 
             // Increment amount of page faults
             ret_val += "X ";
@@ -133,9 +138,11 @@ namespace ra {
             ret_val += "O ";
           }
 
-          cache.add(v);
+          // No matter what we are adding in the value.
+          cache.add(current_rs);
         }
 
+        // Output how many page faults and the page fault hits/no page faulting.
         return ret_val + " | Page Faults = " + std::to_string(pg_faults);
       }
       lru_algorithm(int f, int t, int ref[]) {
